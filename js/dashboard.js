@@ -11,9 +11,13 @@ const storeIcons = {
   "NO BRAND": "🟡"
 };
 
+let activeWorkspaceId = null;
+
 export async function loadDashboard() {
   const message = document.getElementById("dashboardMessage");
   const storeGrid = document.getElementById("storeGrid");
+  const addProductSection =
+    document.getElementById("addProductSection");
 
   message.textContent = "Loading shopping data...";
 
@@ -34,6 +38,7 @@ export async function loadDashboard() {
     }
 
     const workspaceId = workspace.id;
+    activeWorkspaceId = workspaceId;
 
     // 2. Fetch data
     const [storesResult, productsResult, purchasesResult] =
@@ -145,6 +150,11 @@ export async function loadDashboard() {
       storeGrid.appendChild(card);
     });
 
+    // 6. Setup Add Product form
+    setupAddProductForm(stores);
+
+    addProductSection.classList.remove("hidden");
+
     message.textContent = "Shopping data loaded successfully.";
 
   } catch (error) {
@@ -153,4 +163,109 @@ export async function loadDashboard() {
     message.textContent =
       "Unable to load shopping data: " + error.message;
   }
+}
+
+
+// 7. Setup Add Product form
+function setupAddProductForm(stores) {
+  const form = document.getElementById("addProductForm");
+  const storeSelect = document.getElementById("productStore");
+
+  // Populate store options
+  storeSelect.replaceChildren();
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a store";
+  storeSelect.appendChild(defaultOption);
+
+  stores.forEach(store => {
+    const option = document.createElement("option");
+    option.value = store.id;
+    option.textContent = store.name;
+    storeSelect.appendChild(option);
+  });
+
+  // Attach submit event only once
+  if (form.dataset.listenerAttached === "true") return;
+
+  form.dataset.listenerAttached = "true";
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const button = document.getElementById("addProductButton");
+    const formMessage =
+      document.getElementById("addProductMessage");
+
+    const productName =
+      document.getElementById("productName").value.trim();
+
+    const storeId = storeSelect.value;
+
+    const imageUrl =
+      document.getElementById("productImage").value.trim();
+
+    const priceValue =
+      document.getElementById("productPrice").value;
+
+    const quantity = Number(
+      document.getElementById("productQuantity").value
+    );
+
+    const priority =
+      document.getElementById("productPriority").value;
+
+    const notes =
+      document.getElementById("productNotes").value.trim();
+
+    if (!activeWorkspaceId) {
+      formMessage.textContent = "Workspace is not available.";
+      return;
+    }
+
+    if (!productName || !storeId || !Number.isInteger(quantity) || quantity < 1) {
+      formMessage.textContent = "Please check the required fields.";
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+    formMessage.textContent = "";
+
+    try {
+      const { error } = await supabase
+        .from("products")
+        .insert({
+          workspace_id: activeWorkspaceId,
+          store_id: storeId,
+          name: productName,
+          image_url: imageUrl || null,
+          price_krw: priceValue === "" ? null : Number(priceValue),
+          quantity: quantity,
+          priority: priority,
+          notes: notes || null
+        });
+
+      if (error) throw error;
+
+      form.reset();
+      document.getElementById("productQuantity").value = 1;
+
+      formMessage.textContent = "Product added successfully!";
+
+      await loadDashboard();
+
+      formMessage.textContent = "Product added successfully!";
+
+    } catch (error) {
+      console.error("Add Product Error:", error);
+      formMessage.textContent =
+        "Unable to add product: " + error.message;
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Add Product";
+    }
+  });
 }
