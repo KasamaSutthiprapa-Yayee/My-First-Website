@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Korea Shopping Catalog</title>
+
+  <link rel="stylesheet" href="./css/style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- LOGIN PAGE -->
+  <main id="loginPage" class="login-page">
+
+    <div class="login-card">
+
+      <div class="brand-icon">K</div>
+
+      <p class="eyebrow">SEOUL SHOPPING COLLECTION</p>
+
+      <h1>Welcome Back!</h1>
+
+      <p class="subtitle">
+        Your Korea shopping journey starts here.
+      </p>
+
+      <form id="loginForm">
+
+        <label for="email">Email Address</label>
+
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+          required
+        >
+
+        <label for="password">Password</label>
+
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button type="submit" id="loginButton">
+          Sign In
+        </button>
+
+        <p id="loginMessage" class="message"></p>
+
+      </form>
+
+      <p class="login-footer">
+        Private Shopping Workspace
+      </p>
+
+    </div>
+
+  </main>
+
+
+  <!-- DASHBOARD PAGE -->
+  <main id="dashboardPage" class="dashboard-page hidden">
+
+    <header class="topbar">
+
+      <div class="brand">
+
+        <span class="brand-icon small">K</span>
+
+        <div>
+          <strong>Korea Shopping</strong>
+          <small>SEOUL COLLECTION</small>
+        </div>
+
+      </div>
+
+      <button id="logoutButton" class="logout-button">
+        Sign Out
+      </button>
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero">
+
+      <p class="eyebrow">YOUR SHOPPING COMPANION</p>
+
+      <h1 id="workspaceName">
+        Korea Shopping 2026
+      </h1>
+
+      <p class="subtitle">
+        Everything you want to bring home from Korea.
+      </p>
+
+    </section>
+
+
+    <!-- STATISTICS -->
+    <section class="stats-grid">
+
+      <div class="stat-card">
+        <span class="stat-label">TOTAL STORES</span>
+        <strong id="storeCount">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">TOTAL PRODUCTS</span>
+        <strong id="productCount">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">PURCHASED ITEMS</span>
+        <strong id="purchasedCount">0</strong>
+      </div>
+
+    </section>
+
+
+    <!-- SHOPPING PROGRESS -->
+    <section class="progress-section">
+
+      <div class="section-heading">
+        <h2>Shopping Progress</h2>
+        <strong id="progressPercent">0%</strong>
+      </div>
+
+      <div class="progress-track">
+        <div
+          id="progressBar"
+          class="progress-fill">
+        </div>
+      </div>
+
+      <p id="progressText" class="subtitle">
+        0 of 0 items purchased
+      </p>
+
+    </section>
+
+
+    <!-- STORES -->
+    <section class="stores-section">
+
+      <div class="section-heading">
+
+        <div>
+          <p class="eyebrow">EXPLORE YOUR FAVORITES</p>
+          <h2>My Shopping Stores</h2>
+        </div>
+
+      </div>
+
+      <div id="storeGrid" class="store-grid">
+
+        <p class="loading-message">
+          Loading stores...
+        </p>
+
+      </div>
+
+      <p id="dashboardMessage" class="message"></p>
+
+    </section>
+
+
+    <footer class="footer">
+      MADE FOR YOUR KOREA SHOPPING JOURNEY ♡
+    </footer>
+
+  </main>
+
+
+  <!-- JAVASCRIPT -->
+  <script type="module" src="./js/auth.js"></script>
+
+</body>
+
+</html>
