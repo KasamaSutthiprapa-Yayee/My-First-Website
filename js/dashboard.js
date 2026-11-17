@@ -1,13 +1,15 @@
 
 import { supabase } from "./supabase.js";
+import { uploadProductImage } from "./storage.js";
+import { resetProductImagePreview } from "./image-preview.js";
 
 const storeIcons = {
-  "DAISO": "🏠",
+  DAISO: "🏠",
   "OLIVE YOUNG": "🧴",
-  "CU": "🥤",
-  "GS25": "🍙",
-  "MUSINSA": "👕",
-  "EMART": "🛒",
+  CU: "🥤",
+  GS25: "🍙",
+  MUSINSA: "👕",
+  EMART: "🛒",
   "NO BRAND": "🟡"
 };
 
@@ -16,23 +18,25 @@ let activeWorkspaceId = null;
 export async function loadDashboard() {
   const message = document.getElementById("dashboardMessage");
   const storeGrid = document.getElementById("storeGrid");
-  const addProductSection =
-    document.getElementById("addProductSection");
+  const addProductSection = document.getElementById("addProductSection");
+
+  if (!message || !storeGrid || !addProductSection) {
+    console.error("Dashboard elements are missing from index.html.");
+    return;
+  }
 
   message.textContent = "Loading shopping data...";
 
   try {
-    // 1. Get workspace
-    const { data: workspace, error: workspaceError } =
-      await supabase
-        .from("workspaces")
-        .select("id, name, currency_rate")
-        .eq("name", "Korea Shopping 2026")
-        .limit(1)
-        .maybeSingle();
+    // 1. Get the shared workspace
+    const { data: workspace, error: workspaceError } = await supabase
+      .from("workspaces")
+      .select("id, name, currency_rate")
+      .eq("name", "Korea Shopping 2026")
+      .limit(1)
+      .maybeSingle();
 
     if (workspaceError) throw workspaceError;
-
     if (!workspace) {
       throw new Error("Workspace not found or access denied.");
     }
@@ -40,34 +44,33 @@ export async function loadDashboard() {
     const workspaceId = workspace.id;
     activeWorkspaceId = workspaceId;
 
-    // 2. Fetch data
-    const [storesResult, productsResult, purchasesResult] =
-      await Promise.all([
-        supabase
-          .from("stores")
-          .select("id, name, category")
-          .eq("workspace_id", workspaceId)
-          .order("name"),
+    // 2. Fetch stores, products and purchase progress
+    const [storesResult, productsResult, purchasesResult] = await Promise.all([
+      supabase
+        .from("stores")
+        .select("id, name, category")
+        .eq("workspace_id", workspaceId)
+        .order("name"),
 
-        supabase
-          .from("products")
-.select(`
-  id,
-  store_id,
-  name,
-  image_url,
-  price_krw,
-  quantity,
-  priority,
-  notes
-`)
-.eq("workspace_id", workspaceId),
+      supabase
+        .from("products")
+        .select(`
+          id,
+          store_id,
+          name,
+          image_url,
+          price_krw,
+          quantity,
+          priority,
+          notes
+        `)
+        .eq("workspace_id", workspaceId),
 
-        supabase
-          .from("purchases")
-          .select("product_id, purchased_quantity")
-          .eq("workspace_id", workspaceId)
-      ]);
+      supabase
+        .from("purchases")
+        .select("product_id, purchased_quantity")
+        .eq("workspace_id", workspaceId)
+    ]);
 
     if (storesResult.error) throw storesResult.error;
     if (productsResult.error) throw productsResult.error;
@@ -77,43 +80,30 @@ export async function loadDashboard() {
     const products = productsResult.data || [];
     const purchases = purchasesResult.data || [];
 
-    // 3. Calculate progress
+    // 3. Calculate shopping progress
     const totalProducts = products.length;
 
     const totalQuantity = products.reduce(
-      (sum, item) => sum + item.quantity,
+      (sum, item) => sum + Number(item.quantity || 0),
       0
     );
 
     const purchasedQuantity = purchases.reduce(
-      (sum, item) => sum + item.purchased_quantity,
+      (sum, item) => sum + Number(item.purchased_quantity || 0),
       0
     );
 
     const percentage = totalQuantity > 0
-      ? Math.round(
-          Math.min(purchasedQuantity / totalQuantity, 1) * 100
-        )
+      ? Math.round(Math.min(purchasedQuantity / totalQuantity, 1) * 100)
       : 0;
 
-    // 4. Update dashboard
-    document.getElementById("workspaceName").textContent =
-      workspace.name;
-
-    document.getElementById("storeCount").textContent =
-      stores.length;
-
-    document.getElementById("productCount").textContent =
-      totalProducts;
-
-    document.getElementById("purchasedCount").textContent =
-      purchasedQuantity;
-
-    document.getElementById("progressPercent").textContent =
-      percentage + "%";
-
-    document.getElementById("progressBar").style.width =
-      percentage + "%";
+    // 4. Update dashboard summary
+    document.getElementById("workspaceName").textContent = workspace.name;
+    document.getElementById("storeCount").textContent = stores.length;
+    document.getElementById("productCount").textContent = totalProducts;
+    document.getElementById("purchasedCount").textContent = purchasedQuantity;
+    document.getElementById("progressPercent").textContent = `${percentage}%`;
+    document.getElementById("progressBar").style.width = `${percentage}%`;
 
     document.getElementById("progressText").textContent =
       `${purchasedQuantity} of ${totalQuantity} items purchased`;
@@ -126,16 +116,13 @@ export async function loadDashboard() {
         product => product.store_id === store.id
       );
 
-      const storePurchased = storeProducts.reduce(
-        (sum, product) => {
-          const purchase = purchases.find(
-            item => item.product_id === product.id
-          );
+      const storePurchased = storeProducts.reduce((sum, product) => {
+        const purchase = purchases.find(
+          item => item.product_id === product.id
+        );
 
-          return sum + (purchase?.purchased_quantity || 0);
-        },
-        0
-      );
+        return sum + Number(purchase?.purchased_quantity || 0);
+      }, 0);
 
       // Store wrapper
       const storeItem = document.createElement("div");
@@ -165,10 +152,9 @@ export async function loadDashboard() {
 
       const expandHint = document.createElement("p");
       expandHint.className = "store-expand-hint";
-      expandHint.textContent =
-        storeProducts.length > 0
-          ? "Click to view products ↓"
-          : "No products yet";
+      expandHint.textContent = storeProducts.length > 0
+        ? "Click to view products ↓"
+        : "No products yet";
 
       card.append(icon, title, category, count, expandHint);
 
@@ -205,7 +191,7 @@ export async function loadDashboard() {
           toggleStore();
         }
       });
-     
+
       // Render products
       const panelTitle = document.createElement("h3");
       panelTitle.className = "store-product-title";
@@ -230,10 +216,7 @@ export async function loadDashboard() {
             try {
               const imageUrl = new URL(product.image_url);
 
-              if (
-                imageUrl.protocol === "https:" ||
-                imageUrl.protocol === "http:"
-              ) {
+              if (["https:", "http:"].includes(imageUrl.protocol)) {
                 const image = document.createElement("img");
                 image.className = "product-image";
                 image.src = imageUrl.href;
@@ -260,10 +243,9 @@ export async function loadDashboard() {
 
           const price = document.createElement("p");
           price.className = "product-price";
-          price.textContent =
-            product.price_krw !== null
-              ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
-              : "Price not specified";
+          price.textContent = product.price_krw !== null
+            ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
+            : "Price not specified";
 
           const quantity = document.createElement("p");
           quantity.className = "product-info";
@@ -302,7 +284,7 @@ export async function loadDashboard() {
           deleteButton.className = "product-delete-button";
           deleteButton.textContent = "Delete";
 
-          // Edit product - single form modal
+          // Edit product
           editButton.addEventListener("click", () => {
             const dialog = document.createElement("dialog");
             dialog.className = "edit-product-dialog";
@@ -316,7 +298,13 @@ export async function loadDashboard() {
             const subtitle = document.createElement("p");
             subtitle.textContent = "Update your product details";
 
-            function createField(labelText, id, inputType, value, placeholder = "") {
+            function createField(
+              labelText,
+              id,
+              inputType,
+              value,
+              placeholder = ""
+            ) {
               const wrapper = document.createElement("div");
               wrapper.className = "edit-form-field";
 
@@ -332,6 +320,7 @@ export async function loadDashboard() {
               input.placeholder = placeholder;
 
               wrapper.append(label, input);
+
               return { wrapper, input };
             }
 
@@ -342,6 +331,7 @@ export async function loadDashboard() {
               product.name,
               "Enter product name"
             );
+
             nameField.input.required = true;
 
             const imageField = createField(
@@ -359,6 +349,7 @@ export async function loadDashboard() {
               product.price_krw,
               "Enter price in KRW"
             );
+
             priceField.input.min = "0";
             priceField.input.step = "0.01";
 
@@ -368,6 +359,7 @@ export async function loadDashboard() {
               "number",
               product.quantity
             );
+
             quantityField.input.min = "1";
             quantityField.input.step = "1";
             quantityField.input.required = true;
@@ -387,14 +379,15 @@ export async function loadDashboard() {
               ["must_buy", "Must Buy"],
               ["normal", "Normal"],
               ["optional", "Optional"]
-            ].forEach(([value, text]) => {
+            ].forEach(([value, labelText]) => {
               const option = document.createElement("option");
               option.value = value;
-              option.textContent = text;
+              option.textContent = labelText;
               prioritySelect.appendChild(option);
             });
 
             prioritySelect.value = product.priority || "normal";
+
             priorityWrapper.append(priorityLabel, prioritySelect);
 
             const notesWrapper = document.createElement("div");
@@ -413,11 +406,11 @@ export async function loadDashboard() {
 
             notesWrapper.append(notesLabel, notesInput);
 
-            const message = document.createElement("p");
-            message.className = "edit-form-message";
+            const editMessage = document.createElement("p");
+            editMessage.className = "edit-form-message";
 
-            const actions = document.createElement("div");
-            actions.className = "edit-form-actions";
+            const formActions = document.createElement("div");
+            formActions.className = "edit-form-actions";
 
             const cancelButton = document.createElement("button");
             cancelButton.type = "button";
@@ -429,7 +422,7 @@ export async function loadDashboard() {
             saveButton.className = "edit-save-button";
             saveButton.textContent = "Save Changes";
 
-            actions.append(cancelButton, saveButton);
+            formActions.append(cancelButton, saveButton);
 
             const grid = document.createElement("div");
             grid.className = "edit-form-grid";
@@ -447,8 +440,8 @@ export async function loadDashboard() {
               heading,
               subtitle,
               grid,
-              message,
-              actions
+              editMessage,
+              formActions
             );
 
             dialog.appendChild(form);
@@ -462,7 +455,8 @@ export async function loadDashboard() {
               dialog.remove();
             });
 
-            form.addEventListener("submit", async (event) => {
+            // Save edited product
+            form.addEventListener("submit", async event => {
               event.preventDefault();
 
               const newName = nameField.input.value.trim();
@@ -477,7 +471,7 @@ export async function loadDashboard() {
                 : Number(priceText);
 
               if (!newName) {
-                message.textContent = "Product name is required.";
+                editMessage.textContent = "Product name is required.";
                 return;
               }
 
@@ -485,7 +479,7 @@ export async function loadDashboard() {
                 priceValue !== null &&
                 (!Number.isFinite(priceValue) || priceValue < 0)
               ) {
-                message.textContent = "Please enter a valid price.";
+                editMessage.textContent = "Please enter a valid price.";
                 return;
               }
 
@@ -493,7 +487,7 @@ export async function loadDashboard() {
                 !Number.isInteger(quantityValue) ||
                 quantityValue < 1
               ) {
-                message.textContent =
+                editMessage.textContent =
                   "Quantity must be a whole number greater than 0.";
                 return;
               }
@@ -501,13 +495,13 @@ export async function loadDashboard() {
               if (
                 !["must_buy", "normal", "optional"].includes(priorityValue)
               ) {
-                message.textContent = "Invalid priority.";
+                editMessage.textContent = "Invalid priority.";
                 return;
               }
 
               saveButton.disabled = true;
               saveButton.textContent = "Saving...";
-              message.textContent = "";
+              editMessage.textContent = "";
 
               try {
                 const { error } = await supabase
@@ -530,7 +524,8 @@ export async function loadDashboard() {
 
               } catch (error) {
                 console.error("Edit Product Error:", error);
-                message.textContent =
+
+                editMessage.textContent =
                   "Unable to update product: " + error.message;
 
                 saveButton.disabled = false;
@@ -557,12 +552,11 @@ export async function loadDashboard() {
                 .from("products")
                 .delete()
                 .eq("id", product.id)
-                .eq("workspace_id", activeWorkspaceId);
+                .eq("workspace_id", workspaceId);
 
               if (error) throw error;
 
               alert("Product deleted successfully!");
-
               await loadDashboard();
 
             } catch (error) {
@@ -602,11 +596,15 @@ export async function loadDashboard() {
   }
 }
 
-
 // 7. Setup Add Product form
 function setupAddProductForm(stores) {
   const form = document.getElementById("addProductForm");
   const storeSelect = document.getElementById("productStore");
+
+  if (!form || !storeSelect) {
+    console.error("Add Product form elements are missing from index.html.");
+    return;
+  }
 
   // Populate store options
   storeSelect.replaceChildren();
@@ -628,12 +626,11 @@ function setupAddProductForm(stores) {
 
   form.dataset.listenerAttached = "true";
 
-  form.addEventListener("submit", async (event) => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
 
     const button = document.getElementById("addProductButton");
-    const formMessage =
-      document.getElementById("addProductMessage");
+    const formMessage = document.getElementById("addProductMessage");
 
     const productName =
       document.getElementById("productName").value.trim();
@@ -643,8 +640,11 @@ function setupAddProductForm(stores) {
     const imageUrl =
       document.getElementById("productImage").value.trim();
 
-    const priceValue =
-      document.getElementById("productPrice").value;
+    const imageFile =
+      document.getElementById("productImageFile")?.files?.[0];
+
+    const priceText =
+      document.getElementById("productPrice").value.trim();
 
     const quantity = Number(
       document.getElementById("productQuantity").value
@@ -661,8 +661,25 @@ function setupAddProductForm(stores) {
       return;
     }
 
-    if (!productName || !storeId || !Number.isInteger(quantity) || quantity < 1) {
+    if (
+      !productName ||
+      !storeId ||
+      !Number.isInteger(quantity) ||
+      quantity < 1
+    ) {
       formMessage.textContent = "Please check the required fields.";
+      return;
+    }
+
+    const priceValue = priceText === ""
+      ? null
+      : Number(priceText);
+
+    if (
+      priceValue !== null &&
+      (!Number.isFinite(priceValue) || priceValue < 0)
+    ) {
+      formMessage.textContent = "Please enter a valid price.";
       return;
     }
 
@@ -671,14 +688,30 @@ function setupAddProductForm(stores) {
     formMessage.textContent = "";
 
     try {
+      // If both are provided, the uploaded file takes priority over the URL.
+      let finalImageUrl = imageUrl || null;
+
+      // Upload selected image to Supabase Storage
+      if (imageFile) {
+        formMessage.textContent = "Uploading image...";
+
+        finalImageUrl = await uploadProductImage(
+          imageFile,
+          activeWorkspaceId
+        );
+      }
+
+      // Save product details to database
+      formMessage.textContent = "Saving product...";
+
       const { error } = await supabase
         .from("products")
         .insert({
           workspace_id: activeWorkspaceId,
           store_id: storeId,
           name: productName,
-          image_url: imageUrl || null,
-          price_krw: priceValue === "" ? null : Number(priceValue),
+          image_url: finalImageUrl,
+          price_krw: priceValue,
           quantity: quantity,
           priority: priority,
           notes: notes || null
@@ -687,9 +720,10 @@ function setupAddProductForm(stores) {
       if (error) throw error;
 
       form.reset();
+
       document.getElementById("productQuantity").value = 1;
 
-      formMessage.textContent = "Product added successfully!";
+      resetProductImagePreview();
 
       await loadDashboard();
 
@@ -697,6 +731,7 @@ function setupAddProductForm(stores) {
 
     } catch (error) {
       console.error("Add Product Error:", error);
+
       formMessage.textContent =
         "Unable to add product: " + error.message;
 
