@@ -230,18 +230,37 @@
 
 
           <!-- IMAGE URL -->
-          <div class="form-field">
+          
+<div class="form-field full-width">
+  <label for="productImage">Image URL (Optional)</label>
+  <input
+    type="url"
+    id="productImage"
+    placeholder="Paste product image URL"
+  >
+</div>
 
-            <label for="productImage">Image URL</label>
+<div class="form-field full-width">
+  <label for="productImageFile">Upload Image</label>
 
-            <input
-              type="url"
-              id="productImage"
-              placeholder="Paste product image URL (optional)"
-            >
+  <input
+    type="file"
+    id="productImageFile"
+    accept="image/jpeg,image/png,image/webp"
+  >
 
-          </div>
+  <p class="upload-hint">
+    JPG, PNG or WEBP · Maximum 5 MB
+  </p>
 
+  <div id="productImagePreviewContainer" class="image-preview-container hidden">
+    <img
+      id="productImagePreview"
+      class="image-preview"
+      alt="Product image preview"
+    >
+  </div>
+</div>
 
           <!-- PRICE -->
           <div class="form-field">
