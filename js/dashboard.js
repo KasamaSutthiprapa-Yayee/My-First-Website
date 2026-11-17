@@ -335,12 +335,78 @@ export async function loadDashboard() {
             nameField.input.required = true;
 
             const imageField = createField(
-              "Image URL",
-              "editProductImage",
-              "url",
-              product.image_url,
-              "Paste image URL (optional)"
-            );
+             
+// Upload image field
+const uploadWrapper = document.createElement("div");
+uploadWrapper.className = "edit-form-field edit-full-width";
+
+const uploadLabel = document.createElement("label");
+uploadLabel.textContent = "Upload Image";
+
+const uploadInput = document.createElement("input");
+uploadInput.type = "file";
+uploadInput.accept = "image/jpeg,image/png,image/webp";
+
+const uploadHint = document.createElement("p");
+uploadHint.className = "upload-hint";
+uploadHint.textContent = "JPG, PNG or WEBP · Maximum 5 MB";
+
+const previewContainer = document.createElement("div");
+previewContainer.className = "image-preview-container hidden";
+
+const previewImage = document.createElement("img");
+previewImage.className = "image-preview";
+previewImage.alt = "New product image preview";
+
+previewContainer.appendChild(previewImage);
+
+let editPreviewUrl = null;
+
+uploadInput.addEventListener("change", () => {
+  if (editPreviewUrl) {
+    URL.revokeObjectURL(editPreviewUrl);
+    editPreviewUrl = null;
+  }
+
+  previewContainer.classList.add("hidden");
+  previewImage.removeAttribute("src");
+
+  const file = uploadInput.files?.[0];
+  if (!file) return;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    editMessage.textContent =
+      "Please select a JPG, PNG or WEBP image.";
+    uploadInput.value = "";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    editMessage.textContent =
+      "Image size must not exceed 5 MB.";
+    uploadInput.value = "";
+    return;
+  }
+
+  editMessage.textContent = "";
+
+  editPreviewUrl = URL.createObjectURL(file);
+  previewImage.src = editPreviewUrl;
+  previewContainer.classList.remove("hidden");
+});
+
+uploadWrapper.append(
+  uploadLabel,
+  uploadInput,
+  uploadHint,
+  previewContainer
+);
 
             const priceField = createField(
               "Price (KRW)",
@@ -427,14 +493,15 @@ export async function loadDashboard() {
             const grid = document.createElement("div");
             grid.className = "edit-form-grid";
 
-            grid.append(
-              nameField.wrapper,
-              imageField.wrapper,
-              priceField.wrapper,
-              quantityField.wrapper,
-              priorityWrapper,
-              notesWrapper
-            );
+          grid.append(
+  nameField.wrapper,
+  imageField.wrapper,
+  uploadWrapper,
+  priceField.wrapper,
+  quantityField.wrapper,
+  priorityWrapper,
+  notesWrapper
+);
 
             form.append(
               heading,
@@ -503,19 +570,58 @@ export async function loadDashboard() {
               saveButton.textContent = "Saving...";
               editMessage.textContent = "";
 
-              try {
-                const { error } = await supabase
-                  .from("products")
-                  .update({
-                    name: newName,
-                    image_url: newImage || null,
-                    price_krw: priceValue,
-                    quantity: quantityValue,
-                    priority: priorityValue,
-                    notes: notesValue || null
-                  })
-                  .eq("id", product.id)
-                  .eq("workspace_id", workspaceId);
+              
+              
+try {
+  let finalEditImageUrl = newImage || product.image_url || null;
+
+  // Upload new image if a file was selected
+  const newImageFile = uploadInput.files?.[0];
+
+  if (newImageFile) {
+    editMessage.textContent = "Uploading image...";
+    
+    finalEditImageUrl = await uploadProductImage(
+      newImageFile,
+      workspaceId
+    );
+  }
+
+  // Update product details
+  editMessage.textContent = "Saving product...";
+
+  const { error } = await supabase
+    .from("products")
+    .update({
+      name: newName,
+      image_url: finalEditImageUrl,
+      price_krw: priceValue,
+      quantity: quantityValue,
+      priority: priorityValue,
+      notes: notesValue || null
+    })
+    .eq("id", product.id)
+    .eq("workspace_id", workspaceId);
+
+  if (error) throw error;
+
+  if (editPreviewUrl) {
+    URL.revokeObjectURL(editPreviewUrl);
+    editPreviewUrl = null;
+  }
+
+  dialog.close();
+  await loadDashboard();
+
+} catch (error) {
+  console.error("Edit Product Error:", error);
+
+  editMessage.textContent =
+    "Unable to update product: " + error.message;
+
+  saveButton.disabled = false;
+  saveButton.textContent = "Save Changes";
+}
 
                 if (error) throw error;
 
