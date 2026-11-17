@@ -875,3 +875,174 @@ button {
     grid-column: auto;
   }
 }
+
+/* ========================================
+   FIX EDIT PRODUCT MODAL POSITION
+======================================== */
+
+dialog.edit-product-dialog[open] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+
+  width: min(680px, calc(100% - 32px));
+  max-width: 680px;
+  max-height: 88vh;
+
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+dialog.edit-product-dialog::backdrop {
+  background: rgba(35, 39, 33, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.edit-product-form {
+  display: block;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+
+  margin: 0;
+  padding: 32px;
+  text-align: left;
+}
+
+.edit-product-form h2 {
+  font-size: 25px;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.edit-product-form > p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.edit-form-field {
+  min-width: 0;
+}
+
+.edit-form-field label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.edit-form-field input,
+.edit-form-field select,
+.edit-form-field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 13px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #fcfcfa;
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.edit-form-field textarea {
+  resize: vertical;
+}
+
+.edit-form-field input:focus,
+.edit-form-field select:focus,
+.edit-form-field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--soft-green);
+}
+
+.edit-full-width {
+  grid-column: 1 / -1;
+}
+
+.edit-form-message {
+  color: #b45309;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.edit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.edit-form-actions button {
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.edit-cancel-button {
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--text);
+}
+
+.edit-save-button {
+  border: none;
+  background: var(--primary);
+  color: white;
+}
+
+.edit-save-button:hover {
+  background: var(--primary-dark);
+}
+
+.edit-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 560px) {
+  dialog.edit-product-dialog[open] {
+    width: calc(100% - 24px);
+    max-height: 90vh;
+    border-radius: 16px;
+  }
+
+  .edit-product-form {
+    padding: 22px 18px;
+  }
+
+  .edit-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .edit-full-width {
+    grid-column: auto;
+  }
+}
