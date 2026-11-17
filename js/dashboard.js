@@ -44,6 +44,15 @@ export async function loadDashboard() {
     const workspaceId = workspace.id;
     activeWorkspaceId = workspaceId;
 
+    // Manual KRW-to-THB exchange rate
+// 1 KRW = 0.0253 THB
+const configuredCurrencyRate = Number(workspace.currency_rate);
+
+const currencyRate =
+  Number.isFinite(configuredCurrencyRate) && configuredCurrencyRate > 0
+    ? configuredCurrencyRate
+    : 0.0253;
+    
     // 2. Fetch stores, products and purchase progress
     const [storesResult, productsResult, purchasesResult] = await Promise.all([
       supabase
@@ -241,11 +250,27 @@ export async function loadDashboard() {
           const productName = document.createElement("h4");
           productName.textContent = product.name;
 
-          const price = document.createElement("p");
-          price.className = "product-price";
-          price.textContent = product.price_krw !== null
-            ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
-            : "Price not specified";
+          // Display price in KRW
+const price = document.createElement("p");
+price.className = "product-price";
+
+price.textContent =
+  product.price_krw !== null && product.price_krw !== undefined
+    ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
+    : "Price not specified";
+
+// Display estimated price in THB
+const priceTHB = document.createElement("p");
+priceTHB.className = "product-price-thb";
+
+priceTHB.textContent =
+  product.price_krw !== null &&
+  product.price_krw !== undefined &&
+  Number.isFinite(Number(product.price_krw))
+    ? `ประมาณ ฿${Math.round(
+        Number(product.price_krw) * currencyRate
+      ).toLocaleString("en-US")}`
+    : "";
 
           const quantity = document.createElement("p");
           quantity.className = "product-info";
@@ -257,11 +282,12 @@ export async function loadDashboard() {
             `Priority: ${product.priority || "normal"}`;
 
           details.append(
-            productName,
-            price,
-            quantity,
-            priority
-          );
+  productName,
+  price,
+  priceTHB,
+  quantity,
+  priority
+);
 
           if (product.notes) {
             const notes = document.createElement("p");
