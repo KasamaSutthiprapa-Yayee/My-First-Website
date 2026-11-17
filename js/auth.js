@@ -1,6 +1,7 @@
 
 import { supabase } from "./supabase.js";
 import { loadDashboard } from "./dashboard.js";
+import "./image-preview.js";
 
 const loginPage = document.getElementById("loginPage");
 const dashboardPage = document.getElementById("dashboardPage");
