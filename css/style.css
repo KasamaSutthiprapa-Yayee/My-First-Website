@@ -684,3 +684,50 @@ button {
     height: 64px;
   }
 }
+
+/* ========================================
+   PRODUCT EDIT AND DELETE BUTTONS
+======================================== */
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.product-actions button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.product-edit-button {
+  border: 1px solid var(--primary);
+  background: var(--soft-green);
+  color: var(--primary-dark);
+}
+
+.product-edit-button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.product-delete-button {
+  border: 1px solid #ead6d1;
+  background: #fff8f6;
+  color: #b4534b;
+}
+
+.product-delete-button:hover {
+  background: #b4534b;
+  color: white;
+}
+
+.product-actions button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
