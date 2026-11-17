@@ -303,16 +303,18 @@ gotItButton.textContent = isCompleted
   ? "Completed ✓"
   : "Got it! +1";
 
+// Button style based on purchase status
 gotItButton.style.cssText = `
   margin-top: 10px;
   padding: 10px 16px;
-  border: 1px solid #71866c;
+  border: 1px solid ${isCompleted ? "#71866c" : "#d1d1d1"};
   border-radius: 10px;
-  background: #edf2e9;
-  color: #52684e;
+  background: ${isCompleted ? "#edf2e9" : "#f1f1f1"};
+  color: ${isCompleted ? "#52684e" : "#888888"};
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 `;
 
 // Allow clicking even when completed to undo one purchase
