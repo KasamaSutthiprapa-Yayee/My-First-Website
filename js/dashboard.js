@@ -51,8 +51,17 @@ export async function loadDashboard() {
 
         supabase
           .from("products")
-          .select("id, store_id, quantity")
-          .eq("workspace_id", workspaceId),
+.select(`
+  id,
+  store_id,
+  name,
+  image_url,
+  price_krw,
+  quantity,
+  priority,
+  notes
+`)
+.eq("workspace_id", workspaceId),
 
         supabase
           .from("purchases")
