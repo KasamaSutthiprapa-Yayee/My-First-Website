@@ -46,14 +46,14 @@ export async function loadDashboard() {
     activeWorkspaceId = workspaceId;
 
     // Manual KRW-to-THB exchange rate
-// 1 KRW = 0.0253 THB
-const configuredCurrencyRate = Number(workspace.currency_rate);
+    // 1 KRW = 0.0253 THB
+    const configuredCurrencyRate = Number(workspace.currency_rate);
 
-const currencyRate =
-  Number.isFinite(configuredCurrencyRate) && configuredCurrencyRate > 0
-    ? configuredCurrencyRate
-    : 0.0253;
-    
+    const currencyRate =
+      Number.isFinite(configuredCurrencyRate) && configuredCurrencyRate > 0
+        ? configuredCurrencyRate
+        : 0.0253;
+
     // 2. Fetch stores, products and purchase progress
     const [storesResult, productsResult, purchasesResult] = await Promise.all([
       supabase
@@ -175,6 +175,7 @@ const currencyRate =
       // Toggle store products
       function toggleStore() {
         const isOpen = !productPanel.classList.contains("hidden");
+
         activeExpandedStoreId = isOpen ? null : store.id;
 
         // Close other stores
@@ -253,149 +254,150 @@ const currencyRate =
           productName.textContent = product.name;
 
           // Display price in KRW
-const price = document.createElement("p");
-price.className = "product-price";
+          const price = document.createElement("p");
+          price.className = "product-price";
 
-price.textContent =
-  product.price_krw !== null && product.price_krw !== undefined
-    ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
-    : "Price not specified";
+          price.textContent =
+            product.price_krw !== null && product.price_krw !== undefined
+              ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
+              : "Price not specified";
 
-// Display estimated price in THB
-const priceTHB = document.createElement("p");
-priceTHB.className = "product-price-thb";
+          // Display estimated price in THB
+          const priceTHB = document.createElement("p");
+          priceTHB.className = "product-price-thb";
 
-priceTHB.textContent =
-  product.price_krw !== null &&
-  product.price_krw !== undefined &&
-  Number.isFinite(Number(product.price_krw))
-    ? `ประมาณ ฿${Math.round(
-        Number(product.price_krw) * currencyRate
-      ).toLocaleString("en-US")}`
-    : "";
+          priceTHB.textContent =
+            product.price_krw !== null &&
+            product.price_krw !== undefined &&
+            Number.isFinite(Number(product.price_krw))
+              ? `ประมาณ ฿${Math.round(
+                  Number(product.price_krw) * currencyRate
+                ).toLocaleString("en-US")}`
+              : "";
 
           const quantity = document.createElement("p");
           quantity.className = "product-info";
           quantity.textContent = `Quantity: ${product.quantity}`;
+
           // Per-product purchase progress
-const purchaseRecord = purchases.find(
-  item => item.product_id === product.id
-);
+          const purchaseRecord = purchases.find(
+            item => item.product_id === product.id
+          );
 
-const purchasedQty = Number(
-  purchaseRecord?.purchased_quantity || 0
-);
+          const purchasedQty = Number(
+            purchaseRecord?.purchased_quantity || 0
+          );
 
-const targetQty = Number(product.quantity || 0);
+          const targetQty = Number(product.quantity || 0);
 
-// Purchased quantity display
-const purchasedInfo = document.createElement("p");
-purchasedInfo.className = "product-info purchased-info";
-purchasedInfo.textContent =
-  `Purchased: ${purchasedQty} / ${targetQty}`;
+          // Purchased quantity display
+          const purchasedInfo = document.createElement("p");
+          purchasedInfo.className = "product-info purchased-info";
+          purchasedInfo.textContent =
+            `Purchased: ${purchasedQty} / ${targetQty}`;
 
-// Got it button
-const gotItButton = document.createElement("button");
-gotItButton.type = "button";
-gotItButton.className = "got-it-button";
+          // Got it button
+          const gotItButton = document.createElement("button");
+          gotItButton.type = "button";
+          gotItButton.className = "got-it-button";
 
-const isCompleted = purchasedQty >= targetQty;
+          const isCompleted = purchasedQty >= targetQty;
 
-gotItButton.textContent = isCompleted
-  ? "Completed ✓"
-  : "Got it! +1";
+          gotItButton.textContent = isCompleted
+            ? "Completed ✓"
+            : "Got it! +1";
 
-// Button style based on purchase status
-gotItButton.style.cssText = `
-  margin-top: 10px;
-  padding: 10px 16px;
-  border: 1px solid ${isCompleted ? "#71866c" : "#d1d1d1"};
-  border-radius: 10px;
-  background: ${isCompleted ? "#edf2e9" : "#f1f1f1"};
-  color: ${isCompleted ? "#52684e" : "#888888"};
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-`;
+          // Button style based on purchase status
+          gotItButton.style.cssText = `
+            margin-top: 10px;
+            padding: 10px 16px;
+            border: 1px solid ${isCompleted ? "#71866c" : "#d1d1d1"};
+            border-radius: 10px;
+            background: ${isCompleted ? "#edf2e9" : "#f1f1f1"};
+            color: ${isCompleted ? "#52684e" : "#888888"};
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          `;
 
-// Allow clicking even when completed to undo one purchase
-gotItButton.addEventListener("click", async () => {
-  gotItButton.disabled = true;
-  gotItButton.textContent = "Saving...";
+          // Allow clicking even when completed to undo one purchase
+          gotItButton.addEventListener("click", async () => {
+            gotItButton.disabled = true;
+            gotItButton.textContent = "Saving...";
 
-  try {
-    if (purchasedQty >= targetQty) {
-      // Undo one purchased item
-      const newPurchasedQty = purchasedQty - 1;
+            try {
+              if (purchasedQty >= targetQty) {
+                // Undo one purchased item
+                const newPurchasedQty = purchasedQty - 1;
 
-      if (newPurchasedQty === 0) {
-        const { error } = await supabase
-          .from("purchases")
-          .delete()
-          .eq("product_id", product.id)
-          .eq("workspace_id", workspaceId);
+                if (newPurchasedQty === 0) {
+                  const { error } = await supabase
+                    .from("purchases")
+                    .delete()
+                    .eq("product_id", product.id)
+                    .eq("workspace_id", workspaceId);
 
-        if (error) throw error;
+                  if (error) throw error;
 
-      } else {
-        const { error } = await supabase
-          .from("purchases")
-          .update({
-            purchased_quantity: newPurchasedQty
-          })
-          .eq("product_id", product.id)
-          .eq("workspace_id", workspaceId);
+                } else {
+                  const { error } = await supabase
+                    .from("purchases")
+                    .update({
+                      purchased_quantity: newPurchasedQty
+                    })
+                    .eq("product_id", product.id)
+                    .eq("workspace_id", workspaceId);
 
-        if (error) throw error;
-      }
+                  if (error) throw error;
+                }
 
-    } else {
-      // Add one purchased item
-      const { error } = await supabase
-        .from("purchases")
-        .upsert(
-          {
-            workspace_id: workspaceId,
-            product_id: product.id,
-            purchased_quantity: purchasedQty + 1
-          },
-          { onConflict: "product_id" }
-        );
+              } else {
+                // Add one purchased item
+                const { error } = await supabase
+                  .from("purchases")
+                  .upsert(
+                    {
+                      workspace_id: workspaceId,
+                      product_id: product.id,
+                      purchased_quantity: purchasedQty + 1
+                    },
+                    { onConflict: "product_id" }
+                  );
 
-      if (error) throw error;
-    }
+                if (error) throw error;
+              }
 
-    await loadDashboard();
+              await loadDashboard();
 
-  } catch (error) {
-    console.error("Purchase Update Error:", error);
+            } catch (error) {
+              console.error("Purchase Update Error:", error);
 
-    purchasedInfo.textContent =
-      `Purchased: ${purchasedQty} / ${targetQty}`;
+              purchasedInfo.textContent =
+                `Purchased: ${purchasedQty} / ${targetQty}`;
 
-    gotItButton.disabled = false;
-    gotItButton.textContent =
-      purchasedQty >= targetQty
-        ? "Completed ✓"
-        : "Got it! +1";
-  }
-});
+              gotItButton.disabled = false;
+              gotItButton.textContent =
+                purchasedQty >= targetQty
+                  ? "Completed ✓"
+                  : "Got it! +1";
+            }
+          });
 
           const priority = document.createElement("p");
           priority.className = "product-info";
           priority.textContent =
             `Priority: ${product.priority || "normal"}`;
 
-       details.append(
-  productName,
-  price,
-  priceTHB,
-  quantity,
-  purchasedInfo,
-  gotItButton,
-  priority
-);
+          details.append(
+            productName,
+            price,
+            priceTHB,
+            quantity,
+            purchasedInfo,
+            gotItButton,
+            priority
+          );
 
           if (product.notes) {
             const notes = document.createElement("p");
@@ -469,85 +471,84 @@ gotItButton.addEventListener("click", async () => {
             nameField.input.required = true;
 
             const imageField = createField(
-              
-  "Image URL",
-  "editProductImage",
-  "url",
-  product.image_url,
-  "Paste image URL (optional)"
-);
-            
-// Upload image field
-const uploadWrapper = document.createElement("div");
-uploadWrapper.className = "edit-form-field edit-full-width";
+              "Image URL",
+              "editProductImage",
+              "url",
+              product.image_url,
+              "Paste image URL (optional)"
+            );
 
-const uploadLabel = document.createElement("label");
-uploadLabel.textContent = "Upload Image";
+            // Upload image field
+            const uploadWrapper = document.createElement("div");
+            uploadWrapper.className = "edit-form-field edit-full-width";
 
-const uploadInput = document.createElement("input");
-uploadInput.type = "file";
-uploadInput.accept = "image/jpeg,image/png,image/webp";
+            const uploadLabel = document.createElement("label");
+            uploadLabel.textContent = "Upload Image";
 
-const uploadHint = document.createElement("p");
-uploadHint.className = "upload-hint";
-uploadHint.textContent = "JPG, PNG or WEBP · Maximum 5 MB";
+            const uploadInput = document.createElement("input");
+            uploadInput.type = "file";
+            uploadInput.accept = "image/jpeg,image/png,image/webp";
 
-const previewContainer = document.createElement("div");
-previewContainer.className = "image-preview-container hidden";
+            const uploadHint = document.createElement("p");
+            uploadHint.className = "upload-hint";
+            uploadHint.textContent = "JPG, PNG or WEBP · Maximum 5 MB";
 
-const previewImage = document.createElement("img");
-previewImage.className = "image-preview";
-previewImage.alt = "New product image preview";
+            const previewContainer = document.createElement("div");
+            previewContainer.className = "image-preview-container hidden";
 
-previewContainer.appendChild(previewImage);
+            const previewImage = document.createElement("img");
+            previewImage.className = "image-preview";
+            previewImage.alt = "New product image preview";
 
-let editPreviewUrl = null;
+            previewContainer.appendChild(previewImage);
 
-uploadInput.addEventListener("change", () => {
-  if (editPreviewUrl) {
-    URL.revokeObjectURL(editPreviewUrl);
-    editPreviewUrl = null;
-  }
+            let editPreviewUrl = null;
 
-  previewContainer.classList.add("hidden");
-  previewImage.removeAttribute("src");
+            uploadInput.addEventListener("change", () => {
+              if (editPreviewUrl) {
+                URL.revokeObjectURL(editPreviewUrl);
+                editPreviewUrl = null;
+              }
 
-  const file = uploadInput.files?.[0];
-  if (!file) return;
+              previewContainer.classList.add("hidden");
+              previewImage.removeAttribute("src");
 
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp"
-  ];
+              const file = uploadInput.files?.[0];
+              if (!file) return;
 
-  if (!allowedTypes.includes(file.type)) {
-    editMessage.textContent =
-      "Please select a JPG, PNG or WEBP image.";
-    uploadInput.value = "";
-    return;
-  }
+              const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+              ];
 
-  if (file.size > 5 * 1024 * 1024) {
-    editMessage.textContent =
-      "Image size must not exceed 5 MB.";
-    uploadInput.value = "";
-    return;
-  }
+              if (!allowedTypes.includes(file.type)) {
+                editMessage.textContent =
+                  "Please select a JPG, PNG or WEBP image.";
+                uploadInput.value = "";
+                return;
+              }
 
-  editMessage.textContent = "";
+              if (file.size > 5 * 1024 * 1024) {
+                editMessage.textContent =
+                  "Image size must not exceed 5 MB.";
+                uploadInput.value = "";
+                return;
+              }
 
-  editPreviewUrl = URL.createObjectURL(file);
-  previewImage.src = editPreviewUrl;
-  previewContainer.classList.remove("hidden");
-});
+              editMessage.textContent = "";
 
-uploadWrapper.append(
-  uploadLabel,
-  uploadInput,
-  uploadHint,
-  previewContainer
-);
+              editPreviewUrl = URL.createObjectURL(file);
+              previewImage.src = editPreviewUrl;
+              previewContainer.classList.remove("hidden");
+            });
+
+            uploadWrapper.append(
+              uploadLabel,
+              uploadInput,
+              uploadHint,
+              previewContainer
+            );
 
             const priceField = createField(
               "Price (KRW)",
@@ -634,15 +635,15 @@ uploadWrapper.append(
             const grid = document.createElement("div");
             grid.className = "edit-form-grid";
 
-          grid.append(
-  nameField.wrapper,
-  imageField.wrapper,
-  uploadWrapper,
-  priceField.wrapper,
-  quantityField.wrapper,
-  priorityWrapper,
-  notesWrapper
-);
+            grid.append(
+              nameField.wrapper,
+              imageField.wrapper,
+              uploadWrapper,
+              priceField.wrapper,
+              quantityField.wrapper,
+              priorityWrapper,
+              notesWrapper
+            );
 
             form.append(
               heading,
@@ -711,58 +712,56 @@ uploadWrapper.append(
               saveButton.textContent = "Saving...";
               editMessage.textContent = "";
 
-              
-              
-try {
-  let finalEditImageUrl = newImage || product.image_url || null;
+              try {
+                let finalEditImageUrl = newImage || product.image_url || null;
 
-  // Upload new image if a file was selected
-  const newImageFile = uploadInput.files?.[0];
+                // Upload new image if a file was selected
+                const newImageFile = uploadInput.files?.[0];
 
-  if (newImageFile) {
-    editMessage.textContent = "Uploading image...";
-    
-    finalEditImageUrl = await uploadProductImage(
-      newImageFile,
-      workspaceId
-    );
-  }
+                if (newImageFile) {
+                  editMessage.textContent = "Uploading image...";
 
-  // Update product details
-  editMessage.textContent = "Saving product...";
+                  finalEditImageUrl = await uploadProductImage(
+                    newImageFile,
+                    workspaceId
+                  );
+                }
 
-  const { error } = await supabase
-    .from("products")
-    .update({
-      name: newName,
-      image_url: finalEditImageUrl,
-      price_krw: priceValue,
-      quantity: quantityValue,
-      priority: priorityValue,
-      notes: notesValue || null
-    })
-    .eq("id", product.id)
-    .eq("workspace_id", workspaceId);
+                // Update product details
+                editMessage.textContent = "Saving product...";
 
-  if (error) throw error;
+                const { error } = await supabase
+                  .from("products")
+                  .update({
+                    name: newName,
+                    image_url: finalEditImageUrl,
+                    price_krw: priceValue,
+                    quantity: quantityValue,
+                    priority: priorityValue,
+                    notes: notesValue || null
+                  })
+                  .eq("id", product.id)
+                  .eq("workspace_id", workspaceId);
 
-  if (editPreviewUrl) {
-    URL.revokeObjectURL(editPreviewUrl);
-    editPreviewUrl = null;
-  }
+                if (error) throw error;
 
-  dialog.close();
-  await loadDashboard();
+                if (editPreviewUrl) {
+                  URL.revokeObjectURL(editPreviewUrl);
+                  editPreviewUrl = null;
+                }
 
-} catch (error) {
-  console.error("Edit Product Error:", error);
+                dialog.close();
+                await loadDashboard();
 
-  editMessage.textContent =
-    "Unable to update product: " + error.message;
+              } catch (error) {
+                console.error("Edit Product Error:", error);
 
-  saveButton.disabled = false;
-  saveButton.textContent = "Save Changes";
-}
+                editMessage.textContent =
+                  "Unable to update product: " + error.message;
+
+                saveButton.disabled = false;
+                saveButton.textContent = "Save Changes";
+              }
             });
 
             dialog.showModal();
@@ -811,11 +810,15 @@ try {
 
       storeItem.append(card, productPanel);
       storeGrid.appendChild(storeItem);
+
+      // Restore the store that was expanded before the dashboard refresh.
+      // This must stay inside stores.forEach.
+      if (activeExpandedStoreId === store.id) {
+        productPanel.classList.remove("hidden");
+        card.setAttribute("aria-expanded", "true");
+        card.classList.add("active");
+      }
     });
-    // Restore previously expanded store
-if (activeExpandedStoreId === store.id) {
-  toggleStore();
-}
 
     // 6. Setup Add Product form
     setupAddProductForm(stores);
