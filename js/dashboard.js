@@ -335,7 +335,14 @@ export async function loadDashboard() {
             nameField.input.required = true;
 
             const imageField = createField(
-             
+              
+  "Image URL",
+  "editProductImage",
+  "url",
+  product.image_url,
+  "Paste image URL (optional)"
+);
+            
 // Upload image field
 const uploadWrapper = document.createElement("div");
 uploadWrapper.className = "edit-form-field edit-full-width";
