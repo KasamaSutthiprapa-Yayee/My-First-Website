@@ -17,7 +17,13 @@
 }
 
 body {
-  font-family: "DM Sans", "Noto Sans KR", sans-serif;
+  font-family:
+    "DM Sans",
+    "Sukhumvit Set",
+    "Sukhumvit",
+    "Noto Sans KR",
+    sans-serif;
+
   background: var(--background);
   color: var(--text);
   min-height: 100vh;
