@@ -297,10 +297,11 @@ const gotItButton = document.createElement("button");
 gotItButton.type = "button";
 gotItButton.className = "got-it-button";
 
-gotItButton.textContent =
-  purchasedQty >= targetQty ? "Completed ✓" : "Got it! +1";
+const isCompleted = purchasedQty >= targetQty;
 
-gotItButton.disabled = purchasedQty >= targetQty;
+gotItButton.textContent = isCompleted
+  ? "Completed ✓"
+  : "Got it! +1";
 
 gotItButton.style.cssText = `
   margin-top: 10px;
@@ -314,31 +315,52 @@ gotItButton.style.cssText = `
   cursor: pointer;
 `;
 
-if (gotItButton.disabled) {
-  gotItButton.style.opacity = "0.65";
-  gotItButton.style.cursor = "not-allowed";
-}
-
-// Save purchase progress
+// Allow clicking even when completed to undo one purchase
 gotItButton.addEventListener("click", async () => {
-  if (gotItButton.disabled) return;
-
   gotItButton.disabled = true;
   gotItButton.textContent = "Saving...";
 
   try {
-    const { error } = await supabase
-      .from("purchases")
-      .upsert(
-        {
-          workspace_id: workspaceId,
-          product_id: product.id,
-          purchased_quantity: purchasedQty + 1
-        },
-        { onConflict: "product_id" }
-      );
+    if (purchasedQty >= targetQty) {
+      // Undo one purchased item
+      const newPurchasedQty = purchasedQty - 1;
 
-    if (error) throw error;
+      if (newPurchasedQty === 0) {
+        const { error } = await supabase
+          .from("purchases")
+          .delete()
+          .eq("product_id", product.id)
+          .eq("workspace_id", workspaceId);
+
+        if (error) throw error;
+
+      } else {
+        const { error } = await supabase
+          .from("purchases")
+          .update({
+            purchased_quantity: newPurchasedQty
+          })
+          .eq("product_id", product.id)
+          .eq("workspace_id", workspaceId);
+
+        if (error) throw error;
+      }
+
+    } else {
+      // Add one purchased item
+      const { error } = await supabase
+        .from("purchases")
+        .upsert(
+          {
+            workspace_id: workspaceId,
+            product_id: product.id,
+            purchased_quantity: purchasedQty + 1
+          },
+          { onConflict: "product_id" }
+        );
+
+      if (error) throw error;
+    }
 
     await loadDashboard();
 
@@ -346,10 +368,13 @@ gotItButton.addEventListener("click", async () => {
     console.error("Purchase Update Error:", error);
 
     purchasedInfo.textContent =
-      `Purchased: ${purchasedQty} / ${targetQty} · Unable to save`;
+      `Purchased: ${purchasedQty} / ${targetQty}`;
 
     gotItButton.disabled = false;
-    gotItButton.textContent = "Got it! +1";
+    gotItButton.textContent =
+      purchasedQty >= targetQty
+        ? "Completed ✓"
+        : "Got it! +1";
   }
 });
 
