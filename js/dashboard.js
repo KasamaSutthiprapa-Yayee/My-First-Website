@@ -302,129 +302,243 @@ export async function loadDashboard() {
           deleteButton.className = "product-delete-button";
           deleteButton.textContent = "Delete";
 
-          // Edit product
-          editButton.addEventListener("click", async () => {
-            const newName = prompt(
-              "Product name:",
-              product.name
-            );
+          // Edit product - single form modal
+          editButton.addEventListener("click", () => {
+            const dialog = document.createElement("dialog");
+            dialog.className = "edit-product-dialog";
 
-            if (newName === null) return;
+            const form = document.createElement("form");
+            form.className = "edit-product-form";
 
-            if (!newName.trim()) {
-              alert("Product name cannot be empty.");
-              return;
+            const heading = document.createElement("h2");
+            heading.textContent = "Edit Product";
+
+            const subtitle = document.createElement("p");
+            subtitle.textContent = "Update your product details";
+
+            function createField(labelText, id, inputType, value, placeholder = "") {
+              const wrapper = document.createElement("div");
+              wrapper.className = "edit-form-field";
+
+              const label = document.createElement("label");
+              label.htmlFor = id;
+              label.textContent = labelText;
+
+              const input = document.createElement("input");
+              input.id = id;
+              input.name = id;
+              input.type = inputType;
+              input.value = value ?? "";
+              input.placeholder = placeholder;
+
+              wrapper.append(label, input);
+              return { wrapper, input };
             }
 
-            const newImage = prompt(
-              "Image URL (leave blank if none):",
-              product.image_url || ""
+            const nameField = createField(
+              "Product Name",
+              "editProductName",
+              "text",
+              product.name,
+              "Enter product name"
+            );
+            nameField.input.required = true;
+
+            const imageField = createField(
+              "Image URL",
+              "editProductImage",
+              "url",
+              product.image_url,
+              "Paste image URL (optional)"
             );
 
-            if (newImage === null) return;
-
-            const newPrice = prompt(
-              "Price in KRW (leave blank if not specified):",
-              product.price_krw ?? ""
+            const priceField = createField(
+              "Price (KRW)",
+              "editProductPrice",
+              "number",
+              product.price_krw,
+              "Enter price in KRW"
             );
+            priceField.input.min = "0";
+            priceField.input.step = "0.01";
 
-            if (newPrice === null) return;
-
-            const newQuantity = prompt(
-              "Quantity:",
+            const quantityField = createField(
+              "Quantity",
+              "editProductQuantity",
+              "number",
               product.quantity
             );
+            quantityField.input.min = "1";
+            quantityField.input.step = "1";
+            quantityField.input.required = true;
 
-            if (newQuantity === null) return;
+            const priorityWrapper = document.createElement("div");
+            priorityWrapper.className = "edit-form-field";
 
-            const newPriority = prompt(
-              "Priority: must_buy, normal, optional",
-              product.priority || "normal"
+            const priorityLabel = document.createElement("label");
+            priorityLabel.htmlFor = "editProductPriority";
+            priorityLabel.textContent = "Priority";
+
+            const prioritySelect = document.createElement("select");
+            prioritySelect.id = "editProductPriority";
+            prioritySelect.name = "editProductPriority";
+
+            [
+              ["must_buy", "Must Buy"],
+              ["normal", "Normal"],
+              ["optional", "Optional"]
+            ].forEach(([value, text]) => {
+              const option = document.createElement("option");
+              option.value = value;
+              option.textContent = text;
+              prioritySelect.appendChild(option);
+            });
+
+            prioritySelect.value = product.priority || "normal";
+            priorityWrapper.append(priorityLabel, prioritySelect);
+
+            const notesWrapper = document.createElement("div");
+            notesWrapper.className = "edit-form-field edit-full-width";
+
+            const notesLabel = document.createElement("label");
+            notesLabel.htmlFor = "editProductNotes";
+            notesLabel.textContent = "Notes";
+
+            const notesInput = document.createElement("textarea");
+            notesInput.id = "editProductNotes";
+            notesInput.name = "editProductNotes";
+            notesInput.rows = 4;
+            notesInput.placeholder = "Add product details or notes";
+            notesInput.value = product.notes || "";
+
+            notesWrapper.append(notesLabel, notesInput);
+
+            const message = document.createElement("p");
+            message.className = "edit-form-message";
+
+            const actions = document.createElement("div");
+            actions.className = "edit-form-actions";
+
+            const cancelButton = document.createElement("button");
+            cancelButton.type = "button";
+            cancelButton.className = "edit-cancel-button";
+            cancelButton.textContent = "Cancel";
+
+            const saveButton = document.createElement("button");
+            saveButton.type = "submit";
+            saveButton.className = "edit-save-button";
+            saveButton.textContent = "Save Changes";
+
+            actions.append(cancelButton, saveButton);
+
+            const grid = document.createElement("div");
+            grid.className = "edit-form-grid";
+
+            grid.append(
+              nameField.wrapper,
+              imageField.wrapper,
+              priceField.wrapper,
+              quantityField.wrapper,
+              priorityWrapper,
+              notesWrapper
             );
 
-            if (newPriority === null) return;
-
-            const newNotes = prompt(
-              "Notes:",
-              product.notes || ""
+            form.append(
+              heading,
+              subtitle,
+              grid,
+              message,
+              actions
             );
 
-            if (newNotes === null) return;
+            dialog.appendChild(form);
+            document.body.appendChild(dialog);
 
-            const priceNumber =
-              newPrice.trim() === "" ? null : Number(newPrice);
+            cancelButton.addEventListener("click", () => {
+              dialog.close();
+            });
 
-            const quantityNumber = Number(newQuantity);
+            dialog.addEventListener("close", () => {
+              dialog.remove();
+            });
 
-            if (
-              priceNumber !== null &&
-              (!Number.isFinite(priceNumber) || priceNumber < 0)
-            ) {
-              alert("Please enter a valid price.");
-              return;
-            }
+            form.addEventListener("submit", async (event) => {
+              event.preventDefault();
 
-            if (
-              !Number.isInteger(quantityNumber) ||
-              quantityNumber < 1
-            ) {
-              alert("Quantity must be a whole number greater than 0.");
-              return;
-            }
+              const newName = nameField.input.value.trim();
+              const newImage = imageField.input.value.trim();
+              const priceText = priceField.input.value.trim();
+              const quantityValue = Number(quantityField.input.value);
+              const priorityValue = prioritySelect.value;
+              const notesValue = notesInput.value.trim();
 
-            if (
-              !["must_buy", "normal", "optional"].includes(newPriority)
-            ) {
-              alert("Invalid priority.");
-              return;
-            }
+              const priceValue = priceText === ""
+                ? null
+                : Number(priceText);
 
-            if (newImage.trim()) {
-              try {
-                const parsedImage = new URL(newImage.trim());
-
-                if (
-                  !["http:", "https:"].includes(parsedImage.protocol)
-                ) {
-                  throw new Error("Invalid image URL");
-                }
-              } catch {
-                alert("Please enter a valid image URL.");
+              if (!newName) {
+                message.textContent = "Product name is required.";
                 return;
               }
-            }
 
-            editButton.disabled = true;
-            editButton.textContent = "Saving...";
+              if (
+                priceValue !== null &&
+                (!Number.isFinite(priceValue) || priceValue < 0)
+              ) {
+                message.textContent = "Please enter a valid price.";
+                return;
+              }
 
-            try {
-              const { error } = await supabase
-                .from("products")
-                .update({
-                  name: newName.trim(),
-                  image_url: newImage.trim() || null,
-                  price_krw: priceNumber,
-                  quantity: quantityNumber,
-                  priority: newPriority,
-                  notes: newNotes.trim() || null
-                })
-                .eq("id", product.id)
-                .eq("workspace_id", activeWorkspaceId);
+              if (
+                !Number.isInteger(quantityValue) ||
+                quantityValue < 1
+              ) {
+                message.textContent =
+                  "Quantity must be a whole number greater than 0.";
+                return;
+              }
 
-              if (error) throw error;
+              if (
+                !["must_buy", "normal", "optional"].includes(priorityValue)
+              ) {
+                message.textContent = "Invalid priority.";
+                return;
+              }
 
-              alert("Product updated successfully!");
+              saveButton.disabled = true;
+              saveButton.textContent = "Saving...";
+              message.textContent = "";
 
-              await loadDashboard();
+              try {
+                const { error } = await supabase
+                  .from("products")
+                  .update({
+                    name: newName,
+                    image_url: newImage || null,
+                    price_krw: priceValue,
+                    quantity: quantityValue,
+                    priority: priorityValue,
+                    notes: notesValue || null
+                  })
+                  .eq("id", product.id)
+                  .eq("workspace_id", workspaceId);
 
-            } catch (error) {
-              console.error("Edit Product Error:", error);
-              alert("Unable to update product: " + error.message);
+                if (error) throw error;
 
-            } finally {
-              editButton.disabled = false;
-              editButton.textContent = "Edit";
-            }
+                dialog.close();
+                await loadDashboard();
+
+              } catch (error) {
+                console.error("Edit Product Error:", error);
+                message.textContent =
+                  "Unable to update product: " + error.message;
+
+                saveButton.disabled = false;
+                saveButton.textContent = "Save Changes";
+              }
+            });
+
+            dialog.showModal();
           });
 
           // Delete product
