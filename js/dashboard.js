@@ -118,7 +118,7 @@ export async function loadDashboard() {
     document.getElementById("progressText").textContent =
       `${purchasedQuantity} of ${totalQuantity} items purchased`;
 
-    // 5. Render store cards
+    // 5. Render expandable store cards
     storeGrid.replaceChildren();
 
     stores.forEach(store => {
@@ -137,8 +137,16 @@ export async function loadDashboard() {
         0
       );
 
+      // Store wrapper
+      const storeItem = document.createElement("div");
+      storeItem.className = "store-item";
+
+      // Store card
       const card = document.createElement("article");
       card.className = "store-card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("aria-expanded", "false");
 
       const icon = document.createElement("div");
       icon.className = "store-icon";
@@ -155,8 +163,133 @@ export async function loadDashboard() {
       count.textContent =
         `${storeProducts.length} products · ${storePurchased} bought`;
 
-      card.append(icon, title, category, count);
-      storeGrid.appendChild(card);
+      const expandHint = document.createElement("p");
+      expandHint.className = "store-expand-hint";
+      expandHint.textContent =
+        storeProducts.length > 0
+          ? "Click to view products ↓"
+          : "No products yet";
+
+      card.append(icon, title, category, count, expandHint);
+
+      // Product list panel
+      const productPanel = document.createElement("div");
+      productPanel.className = "store-product-panel hidden";
+
+      // Toggle store products
+      function toggleStore() {
+        const isOpen = !productPanel.classList.contains("hidden");
+
+        // Close other stores
+        storeGrid.querySelectorAll(".store-product-panel").forEach(panel => {
+          panel.classList.add("hidden");
+        });
+
+        storeGrid.querySelectorAll(".store-card").forEach(item => {
+          item.setAttribute("aria-expanded", "false");
+          item.classList.remove("active");
+        });
+
+        if (!isOpen) {
+          productPanel.classList.remove("hidden");
+          card.setAttribute("aria-expanded", "true");
+          card.classList.add("active");
+        }
+      }
+
+      card.addEventListener("click", toggleStore);
+
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleStore();
+        }
+      });
+
+      // Render products
+      const panelTitle = document.createElement("h3");
+      panelTitle.className = "store-product-title";
+      panelTitle.textContent = `${store.name} Products`;
+
+      productPanel.appendChild(panelTitle);
+
+      if (storeProducts.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty-products";
+        emptyMessage.textContent = "No products added to this store yet.";
+
+        productPanel.appendChild(emptyMessage);
+
+      } else {
+        storeProducts.forEach(product => {
+          const productCard = document.createElement("article");
+          productCard.className = "product-card";
+
+          // Product image
+          if (product.image_url) {
+            try {
+              const imageUrl = new URL(product.image_url);
+
+              if (
+                imageUrl.protocol === "https:" ||
+                imageUrl.protocol === "http:"
+              ) {
+                const image = document.createElement("img");
+                image.className = "product-image";
+                image.src = imageUrl.href;
+                image.alt = product.name;
+                image.loading = "lazy";
+
+                productCard.appendChild(image);
+              }
+            } catch {
+              // Ignore invalid image URLs
+            }
+          }
+
+          const details = document.createElement("div");
+          details.className = "product-details";
+
+          const productName = document.createElement("h4");
+          productName.textContent = product.name;
+
+          const price = document.createElement("p");
+          price.className = "product-price";
+          price.textContent =
+            product.price_krw !== null
+              ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
+              : "Price not specified";
+
+          const quantity = document.createElement("p");
+          quantity.className = "product-info";
+          quantity.textContent = `Quantity: ${product.quantity}`;
+
+          const priority = document.createElement("p");
+          priority.className = "product-info";
+          priority.textContent =
+            `Priority: ${product.priority || "normal"}`;
+
+          details.append(
+            productName,
+            price,
+            quantity,
+            priority
+          );
+
+          if (product.notes) {
+            const notes = document.createElement("p");
+            notes.className = "product-notes";
+            notes.textContent = product.notes;
+            details.appendChild(notes);
+          }
+
+          productCard.appendChild(details);
+          productPanel.appendChild(productCard);
+        });
+      }
+
+      storeItem.append(card, productPanel);
+      storeGrid.appendChild(storeItem);
     });
 
     // 6. Setup Add Product form
