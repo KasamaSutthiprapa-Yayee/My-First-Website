@@ -275,17 +275,96 @@ priceTHB.textContent =
           const quantity = document.createElement("p");
           quantity.className = "product-info";
           quantity.textContent = `Quantity: ${product.quantity}`;
+          // Per-product purchase progress
+const purchaseRecord = purchases.find(
+  item => item.product_id === product.id
+);
+
+const purchasedQty = Number(
+  purchaseRecord?.purchased_quantity || 0
+);
+
+const targetQty = Number(product.quantity || 0);
+
+// Purchased quantity display
+const purchasedInfo = document.createElement("p");
+purchasedInfo.className = "product-info purchased-info";
+purchasedInfo.textContent =
+  `Purchased: ${purchasedQty} / ${targetQty}`;
+
+// Got it button
+const gotItButton = document.createElement("button");
+gotItButton.type = "button";
+gotItButton.className = "got-it-button";
+
+gotItButton.textContent =
+  purchasedQty >= targetQty ? "Completed ✓" : "Got it! +1";
+
+gotItButton.disabled = purchasedQty >= targetQty;
+
+gotItButton.style.cssText = `
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: 1px solid #71866c;
+  border-radius: 10px;
+  background: #edf2e9;
+  color: #52684e;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+if (gotItButton.disabled) {
+  gotItButton.style.opacity = "0.65";
+  gotItButton.style.cursor = "not-allowed";
+}
+
+// Save purchase progress
+gotItButton.addEventListener("click", async () => {
+  if (gotItButton.disabled) return;
+
+  gotItButton.disabled = true;
+  gotItButton.textContent = "Saving...";
+
+  try {
+    const { error } = await supabase
+      .from("purchases")
+      .upsert(
+        {
+          workspace_id: workspaceId,
+          product_id: product.id,
+          purchased_quantity: purchasedQty + 1
+        },
+        { onConflict: "product_id" }
+      );
+
+    if (error) throw error;
+
+    await loadDashboard();
+
+  } catch (error) {
+    console.error("Purchase Update Error:", error);
+
+    purchasedInfo.textContent =
+      `Purchased: ${purchasedQty} / ${targetQty} · Unable to save`;
+
+    gotItButton.disabled = false;
+    gotItButton.textContent = "Got it! +1";
+  }
+});
 
           const priority = document.createElement("p");
           priority.className = "product-info";
           priority.textContent =
             `Priority: ${product.priority || "normal"}`;
 
-          details.append(
+       details.append(
   productName,
   price,
   priceTHB,
   quantity,
+  purchasedInfo,
+  gotItButton,
   priority
 );
 
