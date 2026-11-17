@@ -629,21 +629,6 @@ try {
   saveButton.disabled = false;
   saveButton.textContent = "Save Changes";
 }
-
-                if (error) throw error;
-
-                dialog.close();
-                await loadDashboard();
-
-              } catch (error) {
-                console.error("Edit Product Error:", error);
-
-                editMessage.textContent =
-                  "Unable to update product: " + error.message;
-
-                saveButton.disabled = false;
-                saveButton.textContent = "Save Changes";
-              }
             });
 
             dialog.showModal();
