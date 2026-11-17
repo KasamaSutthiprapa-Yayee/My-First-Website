@@ -205,7 +205,7 @@ export async function loadDashboard() {
           toggleStore();
         }
       });
-
+     
       // Render products
       const panelTitle = document.createElement("h3");
       panelTitle.className = "store-product-title";
@@ -239,6 +239,11 @@ export async function loadDashboard() {
                 image.src = imageUrl.href;
                 image.alt = product.name;
                 image.loading = "lazy";
+
+                // Hide broken images
+                image.addEventListener("error", () => {
+                  image.remove();
+                });
 
                 productCard.appendChild(image);
               }
@@ -282,6 +287,182 @@ export async function loadDashboard() {
             notes.textContent = product.notes;
             details.appendChild(notes);
           }
+
+          // Product action buttons
+          const actions = document.createElement("div");
+          actions.className = "product-actions";
+
+          const editButton = document.createElement("button");
+          editButton.type = "button";
+          editButton.className = "product-edit-button";
+          editButton.textContent = "Edit";
+
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "product-delete-button";
+          deleteButton.textContent = "Delete";
+
+          // Edit product
+          editButton.addEventListener("click", async () => {
+            const newName = prompt(
+              "Product name:",
+              product.name
+            );
+
+            if (newName === null) return;
+
+            if (!newName.trim()) {
+              alert("Product name cannot be empty.");
+              return;
+            }
+
+            const newImage = prompt(
+              "Image URL (leave blank if none):",
+              product.image_url || ""
+            );
+
+            if (newImage === null) return;
+
+            const newPrice = prompt(
+              "Price in KRW (leave blank if not specified):",
+              product.price_krw ?? ""
+            );
+
+            if (newPrice === null) return;
+
+            const newQuantity = prompt(
+              "Quantity:",
+              product.quantity
+            );
+
+            if (newQuantity === null) return;
+
+            const newPriority = prompt(
+              "Priority: must_buy, normal, optional",
+              product.priority || "normal"
+            );
+
+            if (newPriority === null) return;
+
+            const newNotes = prompt(
+              "Notes:",
+              product.notes || ""
+            );
+
+            if (newNotes === null) return;
+
+            const priceNumber =
+              newPrice.trim() === "" ? null : Number(newPrice);
+
+            const quantityNumber = Number(newQuantity);
+
+            if (
+              priceNumber !== null &&
+              (!Number.isFinite(priceNumber) || priceNumber < 0)
+            ) {
+              alert("Please enter a valid price.");
+              return;
+            }
+
+            if (
+              !Number.isInteger(quantityNumber) ||
+              quantityNumber < 1
+            ) {
+              alert("Quantity must be a whole number greater than 0.");
+              return;
+            }
+
+            if (
+              !["must_buy", "normal", "optional"].includes(newPriority)
+            ) {
+              alert("Invalid priority.");
+              return;
+            }
+
+            if (newImage.trim()) {
+              try {
+                const parsedImage = new URL(newImage.trim());
+
+                if (
+                  !["http:", "https:"].includes(parsedImage.protocol)
+                ) {
+                  throw new Error("Invalid image URL");
+                }
+              } catch {
+                alert("Please enter a valid image URL.");
+                return;
+              }
+            }
+
+            editButton.disabled = true;
+            editButton.textContent = "Saving...";
+
+            try {
+              const { error } = await supabase
+                .from("products")
+                .update({
+                  name: newName.trim(),
+                  image_url: newImage.trim() || null,
+                  price_krw: priceNumber,
+                  quantity: quantityNumber,
+                  priority: newPriority,
+                  notes: newNotes.trim() || null
+                })
+                .eq("id", product.id)
+                .eq("workspace_id", activeWorkspaceId);
+
+              if (error) throw error;
+
+              alert("Product updated successfully!");
+
+              await loadDashboard();
+
+            } catch (error) {
+              console.error("Edit Product Error:", error);
+              alert("Unable to update product: " + error.message);
+
+            } finally {
+              editButton.disabled = false;
+              editButton.textContent = "Edit";
+            }
+          });
+
+          // Delete product
+          deleteButton.addEventListener("click", async () => {
+            const confirmed = confirm(
+              `Are you sure you want to delete "${product.name}"?`
+            );
+
+            if (!confirmed) return;
+
+            deleteButton.disabled = true;
+            deleteButton.textContent = "Deleting...";
+
+            try {
+              const { error } = await supabase
+                .from("products")
+                .delete()
+                .eq("id", product.id)
+                .eq("workspace_id", activeWorkspaceId);
+
+              if (error) throw error;
+
+              alert("Product deleted successfully!");
+
+              await loadDashboard();
+
+            } catch (error) {
+              console.error("Delete Product Error:", error);
+              alert("Unable to delete product: " + error.message);
+
+            } finally {
+              deleteButton.disabled = false;
+              deleteButton.textContent = "Delete";
+            }
+          });
+
+          actions.append(editButton, deleteButton);
+          details.appendChild(actions);
 
           productCard.appendChild(details);
           productPanel.appendChild(productCard);
