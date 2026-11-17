@@ -1,9 +1,14 @@
 
 const imageInput = document.getElementById("productImageFile");
+
 const previewContainer = document.getElementById(
   "productImagePreviewContainer"
 );
-const previewImage = document.getElementById("productImagePreview");
+
+const previewImage = document.getElementById(
+  "productImagePreview"
+);
+
 const formMessage = document.getElementById("addProductMessage");
 
 let previewObjectUrl = null;
@@ -14,47 +19,66 @@ function clearPreview() {
     previewObjectUrl = null;
   }
 
-  previewImage.removeAttribute("src");
-  previewContainer.classList.add("hidden");
+  if (previewImage) {
+    previewImage.removeAttribute("src");
+  }
+
+  if (previewContainer) {
+    previewContainer.classList.add("hidden");
+  }
 }
 
-imageInput.addEventListener("change", () => {
-  const file = imageInput.files?.[0];
+// Stop safely if the upload field is not on this page
+if (imageInput && previewContainer && previewImage) {
 
-  clearPreview();
-  formMessage.textContent = "";
+  imageInput.addEventListener("change", () => {
+    const file = imageInput.files?.[0];
 
-  if (!file) return;
+    clearPreview();
 
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp"
-  ];
+    if (formMessage) {
+      formMessage.textContent = "";
+    }
 
-  if (!allowedTypes.includes(file.type)) {
-    formMessage.textContent =
-      "Please select a JPG, PNG or WEBP image.";
+    if (!file) return;
 
-    imageInput.value = "";
-    return;
-  }
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
 
-  if (file.size > 5 * 1024 * 1024) {
-    formMessage.textContent =
-      "Image size must not exceed 5 MB.";
+    if (!allowedTypes.includes(file.type)) {
+      if (formMessage) {
+        formMessage.textContent =
+          "Please select a JPG, PNG or WEBP image.";
+      }
 
-    imageInput.value = "";
-    return;
-  }
+      imageInput.value = "";
+      return;
+    }
 
-  previewObjectUrl = URL.createObjectURL(file);
+    if (file.size > 5 * 1024 * 1024) {
+      if (formMessage) {
+        formMessage.textContent =
+          "Image size must not exceed 5 MB.";
+      }
 
-  previewImage.src = previewObjectUrl;
-  previewContainer.classList.remove("hidden");
-});
+      imageInput.value = "";
+      return;
+    }
+
+    previewObjectUrl = URL.createObjectURL(file);
+
+    previewImage.src = previewObjectUrl;
+    previewContainer.classList.remove("hidden");
+  });
+}
 
 export function resetProductImagePreview() {
   clearPreview();
-  imageInput.value = "";
+
+  if (imageInput) {
+    imageInput.value = "";
+  }
 }
