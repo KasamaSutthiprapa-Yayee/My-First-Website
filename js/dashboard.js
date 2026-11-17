@@ -14,6 +14,7 @@ const storeIcons = {
 };
 
 let activeWorkspaceId = null;
+let activeExpandedStoreId = null;
 
 export async function loadDashboard() {
   const message = document.getElementById("dashboardMessage");
@@ -174,6 +175,7 @@ const currencyRate =
       // Toggle store products
       function toggleStore() {
         const isOpen = !productPanel.classList.contains("hidden");
+        activeExpandedStoreId = isOpen ? null : store.id;
 
         // Close other stores
         storeGrid.querySelectorAll(".store-product-panel").forEach(panel => {
@@ -810,6 +812,10 @@ try {
       storeItem.append(card, productPanel);
       storeGrid.appendChild(storeItem);
     });
+    // Restore previously expanded store
+if (activeExpandedStoreId === store.id) {
+  toggleStore();
+}
 
     // 6. Setup Add Product form
     setupAddProductForm(stores);
