@@ -2132,3 +2132,53 @@ dialog.edit-product-dialog::backdrop {
     cursor: pointer;
   }
 }
+
+/* ========================================
+   MOBILE - PRODUCT NOTES GRAY BOX
+======================================== */
+
+@media (max-width: 700px) {
+  .product-notes-container {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f1f2ef;
+  }
+
+  .product-notes {
+    margin: 0 !important;
+    color: #777d74;
+    font-size: 11px !important;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .product-notes.collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+
+  .product-notes.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .toggle-notes-button {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 3px 0;
+    border: none;
+    background: transparent;
+    color: #66765f;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
