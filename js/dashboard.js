@@ -499,41 +499,24 @@ if (product.notes) {
 const gotItButton = document.createElement("button");
 gotItButton.type = "button";
 gotItButton.className = "product-got-button";
+gotItButton.textContent =
+  purchasedQty >= Number(product.quantity || 1)
+    ? "Got it ✓"
+    : "Got it!";
 
-const maxQty = Number(product.quantity || 1);
-
-// Update button text and status
-function updatePurchaseStatus() {
-  gotItButton.classList.remove(
-    "is-not-started",
-    "is-in-progress",
-    "is-complete"
-  );
-
-  if (purchasedQty === 0) {
-    gotItButton.classList.add("is-not-started");
-    gotItButton.textContent = "ยังไม่ได้ซื้อ · Got it!";
-
-  } else if (purchasedQty < maxQty) {
-    gotItButton.classList.add("is-in-progress");
-    gotItButton.textContent =
-      `ซื้อแล้ว ${purchasedQty}/${maxQty} · เพิ่มอีก +1`;
-
-  } else {
-    gotItButton.classList.add("is-complete");
-    gotItButton.textContent = "ซื้อครบแล้ว ✓";
-  }
-}
-
-updatePurchaseStatus();
+gotItButton.classList.toggle(
+  "is-complete",
+  purchasedQty >= Number(product.quantity || 1)
+);
 
 gotItButton.addEventListener("click", async () => {
+  const maxQty = Number(product.quantity || 1);
+
   const nextQty = purchasedQty >= maxQty
     ? purchasedQty - 1
     : purchasedQty + 1;
 
   gotItButton.disabled = true;
-  gotItButton.textContent = "Saving...";
 
   try {
     if (nextQty <= 0) {
@@ -564,7 +547,6 @@ gotItButton.addEventListener("click", async () => {
     console.error("Purchase progress error:", error);
     alert("Unable to update progress: " + error.message);
     gotItButton.disabled = false;
-    updatePurchaseStatus();
   }
 });
           
