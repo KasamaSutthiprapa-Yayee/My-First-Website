@@ -443,9 +443,12 @@ priceTHB.textContent = product.price_krw !== null
   priceTHB,
   quantity,
   priority
-);  
-         
+);          
+
 if (product.notes) {
+  const notesContainer = document.createElement("div");
+  notesContainer.className = "product-notes-container";
+
   const notes = document.createElement("p");
   notes.className = "product-notes collapsed";
   notes.textContent = product.notes;
@@ -456,22 +459,29 @@ if (product.notes) {
   toggleNotesButton.textContent = "อ่านเพิ่มเติม ↓";
   toggleNotesButton.setAttribute("aria-expanded", "false");
 
-  toggleNotesButton.addEventListener("click", () => {
-    const isExpanded = notes.classList.toggle("expanded");
+  toggleNotesButton.addEventListener("click", event => {
+    event.stopPropagation();
 
-    notes.classList.toggle("collapsed", !isExpanded);
+    const isCurrentlyCollapsed =
+      notes.classList.contains("collapsed");
 
-    toggleNotesButton.textContent = isExpanded
-      ? "ย่อข้อความ ↑"
-      : "อ่านเพิ่มเติม ↓";
+    if (isCurrentlyCollapsed) {
+      notes.classList.remove("collapsed");
+      notes.classList.add("expanded");
 
-    toggleNotesButton.setAttribute(
-      "aria-expanded",
-      String(isExpanded)
-    );
+      toggleNotesButton.textContent = "ย่อข้อความ ↑";
+      toggleNotesButton.setAttribute("aria-expanded", "true");
+    } else {
+      notes.classList.remove("expanded");
+      notes.classList.add("collapsed");
+
+      toggleNotesButton.textContent = "อ่านเพิ่มเติม ↓";
+      toggleNotesButton.setAttribute("aria-expanded", "false");
+    }
   });
 
-  details.append(notes, toggleNotesButton);
+  notesContainer.append(notes, toggleNotesButton);
+  details.appendChild(notesContainer);
 }
 
           // Product action buttons
