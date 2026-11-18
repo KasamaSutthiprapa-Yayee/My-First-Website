@@ -14,7 +14,6 @@ const storeIcons = {
 };
 
 let activeWorkspaceId = null;
-let activeExpandedStoreId = null;
 
 export async function loadDashboard() {
   const message = document.getElementById("dashboardMessage");
@@ -45,20 +44,11 @@ export async function loadDashboard() {
     const workspaceId = workspace.id;
     activeWorkspaceId = workspaceId;
 
-    // Manual KRW-to-THB exchange rate
-    // 1 KRW = 0.0253 THB
-    const configuredCurrencyRate = Number(workspace.currency_rate);
-
-    const currencyRate =
-      Number.isFinite(configuredCurrencyRate) && configuredCurrencyRate > 0
-        ? configuredCurrencyRate
-        : 0.0253;
-
     // 2. Fetch stores, products and purchase progress
     const [storesResult, productsResult, purchasesResult] = await Promise.all([
       supabase
         .from("stores")
-        .select("id, name, category")
+        .select("id, name, category, store_type, address, maps_url, phone, website, opening_hours, description, notes")
         .eq("workspace_id", workspaceId)
         .order("name"),
 
@@ -147,24 +137,38 @@ export async function loadDashboard() {
 
       const icon = document.createElement("div");
       icon.className = "store-icon";
-      icon.textContent = storeIcons[store.name] || "🛍️";
+      icon.textContent = (
+        store.store_type === "restaurant"
+          ? "🍽️"
+          : (storeIcons[store.name] || "🛍️")
+      );
 
       const title = document.createElement("h3");
       title.textContent = store.name;
 
       const category = document.createElement("p");
-      category.textContent = store.category || "Shopping Store";
+      category.textContent = store.store_type === "restaurant"
+        ? (store.category || "Restaurant")
+        : (store.category || "Shopping Store");
 
       const count = document.createElement("p");
       count.className = "store-count";
       count.textContent =
-        `${storeProducts.length} products · ${storePurchased} bought`;
+        `${storeProducts.length} ${
+          store.store_type === "restaurant" ? "menu items" : "products"
+        } · ${storePurchased} ${
+          store.store_type === "restaurant" ? "tried" : "bought"
+        }`;
 
       const expandHint = document.createElement("p");
       expandHint.className = "store-expand-hint";
       expandHint.textContent = storeProducts.length > 0
-        ? "Click to view products ↓"
-        : "No products yet";
+        ? (
+          store.store_type === "restaurant"
+            ? "Click to view menu ↓"
+            : "Click to view products ↓"
+        )
+        : "No items yet";
 
       card.append(icon, title, category, count, expandHint);
 
@@ -175,8 +179,6 @@ export async function loadDashboard() {
       // Toggle store products
       function toggleStore() {
         const isOpen = !productPanel.classList.contains("hidden");
-
-        activeExpandedStoreId = isOpen ? null : store.id;
 
         // Close other stores
         storeGrid.querySelectorAll(".store-product-panel").forEach(panel => {
@@ -204,17 +206,64 @@ export async function loadDashboard() {
         }
       });
 
-      // Render products
+      // Render products or menu
       const panelTitle = document.createElement("h3");
       panelTitle.className = "store-product-title";
-      panelTitle.textContent = `${store.name} Products`;
+      panelTitle.textContent = store.store_type === "restaurant"
+        ? `${store.name} Menu`
+        : `${store.name} Products`;
 
       productPanel.appendChild(panelTitle);
+
+      // Restaurant information
+      if (store.store_type === "restaurant") {
+        const info = document.createElement("div");
+        info.className = "restaurant-info";
+
+        const addInfo = (label, value) => {
+          if (!value) return;
+          const line = document.createElement("p");
+          line.textContent = `${label}: ${value}`;
+          info.appendChild(line);
+        };
+
+        addInfo("Address", store.address);
+        addInfo("Phone", store.phone);
+        addInfo("Opening hours", store.opening_hours);
+        addInfo("About", store.description);
+        addInfo("Notes", store.notes);
+
+        if (store.maps_url) {
+          const link = document.createElement("a");
+          link.href = store.maps_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Open in Google Maps ↗";
+          link.className = "restaurant-link";
+          info.appendChild(link);
+        }
+
+        if (store.website) {
+          const link = document.createElement("a");
+          link.href = store.website;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Visit website ↗";
+          link.className = "restaurant-link";
+          info.appendChild(link);
+        }
+
+        if (info.childElementCount) {
+          productPanel.appendChild(info);
+        }
+      }
 
       if (storeProducts.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty-products";
-        emptyMessage.textContent = "No products added to this store yet.";
+        emptyMessage.textContent = store.store_type === "restaurant"
+          ? "No menu items added to this restaurant yet."
+          : "No products added to this store yet.";
 
         productPanel.appendChild(emptyMessage);
 
@@ -235,7 +284,6 @@ export async function loadDashboard() {
                 image.alt = product.name;
                 image.loading = "lazy";
 
-                // Hide broken images
                 image.addEventListener("error", () => {
                   image.remove();
                 });
@@ -253,149 +301,24 @@ export async function loadDashboard() {
           const productName = document.createElement("h4");
           productName.textContent = product.name;
 
-          // Display price in KRW
           const price = document.createElement("p");
           price.className = "product-price";
-
-          price.textContent =
-            product.price_krw !== null && product.price_krw !== undefined
-              ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
-              : "Price not specified";
-
-          // Display estimated price in THB
-          const priceTHB = document.createElement("p");
-          priceTHB.className = "product-price-thb";
-
-          priceTHB.textContent =
-            product.price_krw !== null &&
-            product.price_krw !== undefined &&
-            Number.isFinite(Number(product.price_krw))
-              ? `ประมาณ ฿${Math.round(
-                  Number(product.price_krw) * currencyRate
-                ).toLocaleString("en-US")}`
-              : "";
+          price.textContent = product.price_krw !== null
+            ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
+            : "Price not specified";
 
           const quantity = document.createElement("p");
           quantity.className = "product-info";
           quantity.textContent = `Quantity: ${product.quantity}`;
 
-          // Per-product purchase progress
-          const purchaseRecord = purchases.find(
-            item => item.product_id === product.id
-          );
-
-          const purchasedQty = Number(
-            purchaseRecord?.purchased_quantity || 0
-          );
-
-          const targetQty = Number(product.quantity || 0);
-
-          // Purchased quantity display
-          const purchasedInfo = document.createElement("p");
-          purchasedInfo.className = "product-info purchased-info";
-          purchasedInfo.textContent =
-            `Purchased: ${purchasedQty} / ${targetQty}`;
-
-          // Got it button
-          const gotItButton = document.createElement("button");
-          gotItButton.type = "button";
-          gotItButton.className = "got-it-button";
-
-          const isCompleted = purchasedQty >= targetQty;
-
-          gotItButton.textContent = isCompleted
-            ? "Completed ✓"
-            : "Got it! +1";
-
-          // Button style based on purchase status
-          gotItButton.style.cssText = `
-            margin-top: 10px;
-            padding: 10px 16px;
-            border: 1px solid ${isCompleted ? "#71866c" : "#d1d1d1"};
-            border-radius: 10px;
-            background: ${isCompleted ? "#edf2e9" : "#f1f1f1"};
-            color: ${isCompleted ? "#52684e" : "#888888"};
-            font: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          `;
-
-          // Allow clicking even when completed to undo one purchase
-          gotItButton.addEventListener("click", async () => {
-            gotItButton.disabled = true;
-            gotItButton.textContent = "Saving...";
-
-            try {
-              if (purchasedQty >= targetQty) {
-                // Undo one purchased item
-                const newPurchasedQty = purchasedQty - 1;
-
-                if (newPurchasedQty === 0) {
-                  const { error } = await supabase
-                    .from("purchases")
-                    .delete()
-                    .eq("product_id", product.id)
-                    .eq("workspace_id", workspaceId);
-
-                  if (error) throw error;
-
-                } else {
-                  const { error } = await supabase
-                    .from("purchases")
-                    .update({
-                      purchased_quantity: newPurchasedQty
-                    })
-                    .eq("product_id", product.id)
-                    .eq("workspace_id", workspaceId);
-
-                  if (error) throw error;
-                }
-
-              } else {
-                // Add one purchased item
-                const { error } = await supabase
-                  .from("purchases")
-                  .upsert(
-                    {
-                      workspace_id: workspaceId,
-                      product_id: product.id,
-                      purchased_quantity: purchasedQty + 1
-                    },
-                    { onConflict: "product_id" }
-                  );
-
-                if (error) throw error;
-              }
-
-              await loadDashboard();
-
-            } catch (error) {
-              console.error("Purchase Update Error:", error);
-
-              purchasedInfo.textContent =
-                `Purchased: ${purchasedQty} / ${targetQty}`;
-
-              gotItButton.disabled = false;
-              gotItButton.textContent =
-                purchasedQty >= targetQty
-                  ? "Completed ✓"
-                  : "Got it! +1";
-            }
-          });
-
           const priority = document.createElement("p");
           priority.className = "product-info";
-          priority.textContent =
-            `Priority: ${product.priority || "normal"}`;
+          priority.textContent = `Priority: ${product.priority || "normal"}`;
 
           details.append(
             productName,
             price,
-            priceTHB,
             quantity,
-            purchasedInfo,
-            gotItButton,
             priority
           );
 
@@ -410,6 +333,67 @@ export async function loadDashboard() {
           const actions = document.createElement("div");
           actions.className = "product-actions";
 
+          const purchase = purchases.find(
+            item => item.product_id === product.id
+          );
+
+          const purchasedQty = Number(
+            purchase?.purchased_quantity || 0
+          );
+
+          const gotItButton = document.createElement("button");
+          gotItButton.type = "button";
+          gotItButton.className = "product-got-button";
+          gotItButton.textContent =
+            purchasedQty >= Number(product.quantity || 1)
+              ? "Completed ✓"
+              : "Got it!";
+
+          gotItButton.classList.toggle(
+            "is-complete",
+            purchasedQty >= Number(product.quantity || 1)
+          );
+
+gotItButton.addEventListener("click", async () => {
+  const maxQty = Number(product.quantity || 1);
+
+  const nextQty = purchasedQty >= maxQty
+    ? purchasedQty - 1
+    : purchasedQty + 1;
+
+  gotItButton.disabled = true;
+
+  try {
+    if (nextQty <= 0) {
+      const { error } = await supabase
+        .from("purchases")
+        .delete()
+        .eq("product_id", product.id)
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+
+    } else {
+      const { error } = await supabase
+        .from("purchases")
+        .upsert({
+          workspace_id: workspaceId,
+          product_id: product.id,
+          purchased_quantity: nextQty
+        }, { onConflict: "product_id" });
+
+      if (error) throw error;
+    }
+
+    await loadDashboard();
+
+  } catch (error) {
+    console.error("Purchase progress error:", error);
+    alert("Unable to update progress: " + error.message);
+    gotItButton.disabled = false;
+  }
+});
+          
           const editButton = document.createElement("button");
           editButton.type = "button";
           editButton.className = "product-edit-button";
@@ -480,7 +464,8 @@ export async function loadDashboard() {
 
             // Upload image field
             const uploadWrapper = document.createElement("div");
-            uploadWrapper.className = "edit-form-field edit-full-width";
+            uploadWrapper.className =
+              "edit-form-field edit-full-width";
 
             const uploadLabel = document.createElement("label");
             uploadLabel.textContent = "Upload Image";
@@ -491,10 +476,12 @@ export async function loadDashboard() {
 
             const uploadHint = document.createElement("p");
             uploadHint.className = "upload-hint";
-            uploadHint.textContent = "JPG, PNG or WEBP · Maximum 5 MB";
+            uploadHint.textContent =
+              "JPG, PNG or WEBP · Maximum 5 MB";
 
             const previewContainer = document.createElement("div");
-            previewContainer.className = "image-preview-container hidden";
+            previewContainer.className =
+              "image-preview-container hidden";
 
             const previewImage = document.createElement("img");
             previewImage.className = "image-preview";
@@ -596,10 +583,14 @@ export async function loadDashboard() {
 
             prioritySelect.value = product.priority || "normal";
 
-            priorityWrapper.append(priorityLabel, prioritySelect);
+            priorityWrapper.append(
+              priorityLabel,
+              prioritySelect
+            );
 
             const notesWrapper = document.createElement("div");
-            notesWrapper.className = "edit-form-field edit-full-width";
+            notesWrapper.className =
+              "edit-form-field edit-full-width";
 
             const notesLabel = document.createElement("label");
             notesLabel.htmlFor = "editProductNotes";
@@ -609,7 +600,8 @@ export async function loadDashboard() {
             notesInput.id = "editProductNotes";
             notesInput.name = "editProductNotes";
             notesInput.rows = 4;
-            notesInput.placeholder = "Add product details or notes";
+            notesInput.placeholder =
+              "Add product details or notes";
             notesInput.value = product.notes || "";
 
             notesWrapper.append(notesLabel, notesInput);
@@ -661,6 +653,9 @@ export async function loadDashboard() {
             });
 
             dialog.addEventListener("close", () => {
+              if (editPreviewUrl) {
+                URL.revokeObjectURL(editPreviewUrl);
+              }
               dialog.remove();
             });
 
@@ -671,7 +666,8 @@ export async function loadDashboard() {
               const newName = nameField.input.value.trim();
               const newImage = imageField.input.value.trim();
               const priceText = priceField.input.value.trim();
-              const quantityValue = Number(quantityField.input.value);
+              const quantityValue =
+                Number(quantityField.input.value);
               const priorityValue = prioritySelect.value;
               const notesValue = notesInput.value.trim();
 
@@ -680,7 +676,8 @@ export async function loadDashboard() {
                 : Number(priceText);
 
               if (!newName) {
-                editMessage.textContent = "Product name is required.";
+                editMessage.textContent =
+                  "Product name is required.";
                 return;
               }
 
@@ -688,7 +685,8 @@ export async function loadDashboard() {
                 priceValue !== null &&
                 (!Number.isFinite(priceValue) || priceValue < 0)
               ) {
-                editMessage.textContent = "Please enter a valid price.";
+                editMessage.textContent =
+                  "Please enter a valid price.";
                 return;
               }
 
@@ -702,7 +700,9 @@ export async function loadDashboard() {
               }
 
               if (
-                !["must_buy", "normal", "optional"].includes(priorityValue)
+                !["must_buy", "normal", "optional"].includes(
+                  priorityValue
+                )
               ) {
                 editMessage.textContent = "Invalid priority.";
                 return;
@@ -713,9 +713,9 @@ export async function loadDashboard() {
               editMessage.textContent = "";
 
               try {
-                let finalEditImageUrl = newImage || product.image_url || null;
+                let finalEditImageUrl =
+                  newImage || product.image_url || null;
 
-                // Upload new image if a file was selected
                 const newImageFile = uploadInput.files?.[0];
 
                 if (newImageFile) {
@@ -727,7 +727,6 @@ export async function loadDashboard() {
                   );
                 }
 
-                // Update product details
                 editMessage.textContent = "Saving product...";
 
                 const { error } = await supabase
@@ -744,11 +743,6 @@ export async function loadDashboard() {
                   .eq("workspace_id", workspaceId);
 
                 if (error) throw error;
-
-                if (editPreviewUrl) {
-                  URL.revokeObjectURL(editPreviewUrl);
-                  editPreviewUrl = null;
-                }
 
                 dialog.close();
                 await loadDashboard();
@@ -800,7 +794,12 @@ export async function loadDashboard() {
             }
           });
 
-          actions.append(editButton, deleteButton);
+          actions.append(
+            gotItButton,
+            editButton,
+            deleteButton
+          );
+
           details.appendChild(actions);
 
           productCard.appendChild(details);
@@ -810,18 +809,11 @@ export async function loadDashboard() {
 
       storeItem.append(card, productPanel);
       storeGrid.appendChild(storeItem);
-
-      // Restore the store that was expanded before the dashboard refresh.
-      // This must stay inside stores.forEach.
-      if (activeExpandedStoreId === store.id) {
-        productPanel.classList.remove("hidden");
-        card.setAttribute("aria-expanded", "true");
-        card.classList.add("active");
-      }
     });
 
-    // 6. Setup Add Product form
+    // 6. Setup Add Product and Add Store forms
     setupAddProductForm(stores);
+    setupAddStoreForm(workspaceId);
 
     addProductSection.classList.remove("hidden");
 
@@ -859,6 +851,44 @@ function setupAddProductForm(stores) {
     option.textContent = store.name;
     storeSelect.appendChild(option);
   });
+
+  const productHeading = document.querySelector(
+    "#addProductSection .section-heading h2"
+  );
+  const productNameLabel = document.querySelector(
+    'label[for="productName"]'
+  );
+  const addButton = document.getElementById("addProductButton");
+
+  const updateProductFormLabels = () => {
+    const selectedStore = stores.find(
+      store => store.id === storeSelect.value
+    );
+
+    const isRestaurant =
+      selectedStore?.store_type === "restaurant";
+
+    if (productHeading) {
+      productHeading.textContent = isRestaurant
+        ? "Add Menu Item"
+        : "Add New Product";
+    }
+
+    if (productNameLabel) {
+      productNameLabel.textContent = isRestaurant
+        ? "Menu Item Name"
+        : "Product Name";
+    }
+
+    if (addButton && !addButton.disabled) {
+      addButton.textContent = isRestaurant
+        ? "Add Menu Item"
+        : "Add Product";
+    }
+  };
+
+  storeSelect.addEventListener("change", updateProductFormLabels);
+  updateProductFormLabels();
 
   // Attach submit event only once
   if (form.dataset.listenerAttached === "true") return;
@@ -927,7 +957,6 @@ function setupAddProductForm(stores) {
     formMessage.textContent = "";
 
     try {
-      // If both are provided, the uploaded file takes priority over the URL.
       let finalImageUrl = imageUrl || null;
 
       // Upload selected image to Supabase Storage
@@ -940,8 +969,8 @@ function setupAddProductForm(stores) {
         );
       }
 
-      // Save product details to database
-      formMessage.textContent = "Saving product...";
+      // Save product or menu item
+      formMessage.textContent = "Saving...";
 
       const { error } = await supabase
         .from("products")
@@ -951,8 +980,8 @@ function setupAddProductForm(stores) {
           name: productName,
           image_url: finalImageUrl,
           price_krw: priceValue,
-          quantity: quantity,
-          priority: priority,
+          quantity,
+          priority,
           notes: notes || null
         });
 
@@ -966,7 +995,8 @@ function setupAddProductForm(stores) {
 
       await loadDashboard();
 
-      formMessage.textContent = "Product added successfully!";
+      formMessage.textContent =
+        "Product / menu item added successfully!";
 
     } catch (error) {
       console.error("Add Product Error:", error);
@@ -976,7 +1006,135 @@ function setupAddProductForm(stores) {
 
     } finally {
       button.disabled = false;
-      button.textContent = "Add Product";
+
+      const selectedStore = stores.find(
+        store => store.id === storeSelect.value
+      );
+
+      button.textContent =
+        selectedStore?.store_type === "restaurant"
+          ? "Add Menu Item"
+          : "Add Product";
+    }
+  });
+}
+
+// 8. Setup Add Store / Restaurant form
+function setupAddStoreForm(workspaceId) {
+  const form = document.getElementById("addStoreForm");
+
+  if (!form || form.dataset.listenerAttached === "true") {
+    return;
+  }
+
+  form.dataset.listenerAttached = "true";
+
+  const typeSelect = document.getElementById("newStoreType");
+  const categoryLabel = document.getElementById("newStoreCategoryLabel");
+  const addressFields = document.getElementById("restaurantFields");
+
+  const updateStoreFields = () => {
+    const isRestaurant = typeSelect?.value === "restaurant";
+
+    addressFields?.classList.toggle("hidden", !isRestaurant);
+
+    if (categoryLabel) {
+      categoryLabel.textContent = isRestaurant
+        ? "Cuisine / Category"
+        : "Category";
+    }
+  };
+
+  typeSelect?.addEventListener("change", updateStoreFields);
+  updateStoreFields();
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = document.getElementById("addStoreButton");
+    const message = document.getElementById("addStoreMessage");
+
+    const name =
+      document.getElementById("newStoreName").value.trim();
+
+    const storeType = typeSelect.value;
+
+    const category =
+      document.getElementById("newStoreCategory").value.trim();
+
+    if (!name) {
+      message.textContent =
+        "Please enter a store or restaurant name.";
+      return;
+    }
+
+    const payload = {
+      workspace_id: workspaceId,
+      name,
+      category: category || (
+        storeType === "restaurant"
+          ? "Restaurant"
+          : "Shopping Store"
+      ),
+      store_type: storeType,
+
+      address: storeType === "restaurant"
+        ? document.getElementById("newStoreAddress").value.trim() || null
+        : null,
+
+      maps_url: storeType === "restaurant"
+        ? document.getElementById("newStoreMaps").value.trim() || null
+        : null,
+
+      phone: storeType === "restaurant"
+        ? document.getElementById("newStorePhone").value.trim() || null
+        : null,
+
+      website: storeType === "restaurant"
+        ? document.getElementById("newStoreWebsite").value.trim() || null
+        : null,
+
+      opening_hours: storeType === "restaurant"
+        ? document.getElementById("newStoreHours").value.trim() || null
+        : null,
+
+      description: storeType === "restaurant"
+        ? document.getElementById("newStoreDescription").value.trim() || null
+        : null,
+
+      notes: storeType === "restaurant"
+        ? document.getElementById("newStoreNotes").value.trim() || null
+        : null
+    };
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+    message.textContent = "";
+
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .insert(payload);
+
+      if (error) throw error;
+
+      form.reset();
+      updateStoreFields();
+
+      await loadDashboard();
+
+      message.textContent =
+        "Store / restaurant added successfully!";
+
+    } catch (error) {
+      console.error("Add Store Error:", error);
+
+      message.textContent =
+        "Unable to add store: " + error.message;
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Add Store / Restaurant";
     }
   });
 }
