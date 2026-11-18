@@ -1549,3 +1549,12 @@ textarea {
     order: 6;
   }
 }
+
+/* SWAP NO BRAND AND OLIVE YOUNG */
+.store-grid > .store-item:nth-child(6) {
+  order: 7;
+}
+
+.store-grid > .store-item:nth-child(7) {
+  order: 6;
+}
