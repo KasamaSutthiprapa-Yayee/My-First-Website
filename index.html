@@ -158,7 +158,7 @@
     </section>
 
 
-    <!-- STORES -->
+    <!-- STORES AND RESTAURANTS -->
     <section class="stores-section">
 
       <div class="section-heading">
@@ -183,7 +183,230 @@
     </section>
 
 
-    <!-- ADD PRODUCT -->
+    <!-- ADD STORE / RESTAURANT -->
+    <section
+      id="addStoreSection"
+      class="add-store-section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+          <p class="eyebrow">EXPAND YOUR KOREA GUIDE</p>
+          <h2>Add a Store or Restaurant</h2>
+        </div>
+
+      </div>
+
+      <form id="addStoreForm" autocomplete="off">
+
+        <div class="store-form-grid">
+
+          <!-- PLACE TYPE -->
+          <div class="form-field">
+
+            <label for="newStoreType">
+              Place Type
+            </label>
+
+            <select id="newStoreType" required>
+
+              <option value="store">
+                Shopping Store
+              </option>
+
+              <option value="restaurant">
+                Restaurant
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- PLACE NAME -->
+          <div class="form-field">
+
+            <label for="newStoreName">
+              Name
+            </label>
+
+            <input
+              id="newStoreName"
+              type="text"
+              placeholder="Enter store or restaurant name"
+              required
+            >
+
+          </div>
+
+
+          <!-- CATEGORY -->
+          <div class="form-field">
+
+            <label
+              id="newStoreCategoryLabel"
+              for="newStoreCategory"
+            >
+              Category
+            </label>
+
+            <input
+              id="newStoreCategory"
+              type="text"
+              placeholder="e.g. Beauty, Fashion, Supermarket, Korean BBQ"
+            >
+
+          </div>
+
+        </div>
+
+
+        <!-- RESTAURANT DETAILS -->
+        <div
+          id="restaurantFields"
+          class="restaurant-form-fields hidden"
+        >
+
+          <h3>Restaurant Details</h3>
+
+          <div class="store-form-grid">
+
+            <!-- ADDRESS -->
+            <div class="form-field full-width">
+
+              <label for="newStoreAddress">
+                Address
+              </label>
+
+              <input
+                id="newStoreAddress"
+                type="text"
+                placeholder="Restaurant address"
+              >
+
+            </div>
+
+
+            <!-- GOOGLE MAPS -->
+            <div class="form-field full-width">
+
+              <label for="newStoreMaps">
+                Google Maps URL
+              </label>
+
+              <input
+                id="newStoreMaps"
+                type="url"
+                placeholder="Paste Google Maps link"
+              >
+
+            </div>
+
+
+            <!-- PHONE -->
+            <div class="form-field">
+
+              <label for="newStorePhone">
+                Phone
+              </label>
+
+              <input
+                id="newStorePhone"
+                type="tel"
+                placeholder="Phone number"
+              >
+
+            </div>
+
+
+            <!-- WEBSITE -->
+            <div class="form-field">
+
+              <label for="newStoreWebsite">
+                Website
+              </label>
+
+              <input
+                id="newStoreWebsite"
+                type="url"
+                placeholder="https://"
+              >
+
+            </div>
+
+
+            <!-- OPENING HOURS -->
+            <div class="form-field full-width">
+
+              <label for="newStoreHours">
+                Opening Hours
+              </label>
+
+              <input
+                id="newStoreHours"
+                type="text"
+                placeholder="e.g. Daily 11:00–22:00"
+              >
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+            <div class="form-field full-width">
+
+              <label for="newStoreDescription">
+                Description
+              </label>
+
+              <textarea
+                id="newStoreDescription"
+                rows="2"
+                placeholder="What is this restaurant known for?"
+              ></textarea>
+
+            </div>
+
+
+            <!-- NOTES -->
+            <div class="form-field full-width">
+
+              <label for="newStoreNotes">
+                Notes
+              </label>
+
+              <textarea
+                id="newStoreNotes"
+                rows="2"
+                placeholder="Things to remember, recommended dishes, etc."
+              ></textarea>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ADD STORE BUTTON -->
+        <button
+          type="submit"
+          id="addStoreButton"
+        >
+          Add Store / Restaurant
+        </button>
+
+        <p
+          id="addStoreMessage"
+          class="message"
+        ></p>
+
+      </form>
+
+    </section>
+
+
+    <!-- ADD PRODUCT / MENU ITEM -->
     <section
       id="addProductSection"
       class="add-product-section hidden"
@@ -198,31 +421,46 @@
 
       </div>
 
-      <form id="addProductForm" autocomplete="off">
+
+      <form
+        id="addProductForm"
+        autocomplete="off"
+      >
 
         <div class="product-form-grid">
 
-          <!-- STORE -->
+          <!-- STORE / RESTAURANT -->
           <div class="form-field">
 
-            <label for="productStore">Store</label>
+            <label for="productStore">
+              Store / Restaurant
+            </label>
 
-            <select id="productStore" required>
-              <option value="">Select a store</option>
+            <select
+              id="productStore"
+              required
+            >
+
+              <option value="">
+                Select a store or restaurant
+              </option>
+
             </select>
 
           </div>
 
 
-          <!-- PRODUCT NAME -->
+          <!-- PRODUCT / MENU NAME -->
           <div class="form-field">
 
-            <label for="productName">Product Name</label>
+            <label for="productName">
+              Product Name
+            </label>
 
             <input
               type="text"
               id="productName"
-              placeholder="Enter product name"
+              placeholder="Enter product or menu name"
               required
             >
 
@@ -230,42 +468,60 @@
 
 
           <!-- IMAGE URL -->
-          
-<div class="form-field full-width">
-  <label for="productImage">Image URL (Optional)</label>
-  <input
-    type="url"
-    id="productImage"
-    placeholder="Paste product image URL"
-  >
-</div>
+          <div class="form-field full-width">
 
-<div class="form-field full-width">
-  <label for="productImageFile">Upload Image</label>
+            <label for="productImage">
+              Image URL (Optional)
+            </label>
 
-  <input
-    type="file"
-    id="productImageFile"
-    accept="image/jpeg,image/png,image/webp"
-  >
+            <input
+              type="url"
+              id="productImage"
+              placeholder="Paste product image URL"
+            >
 
-  <p class="upload-hint">
-    JPG, PNG or WEBP · Maximum 5 MB
-  </p>
+          </div>
 
-  <div id="productImagePreviewContainer" class="image-preview-container hidden">
-    <img
-      id="productImagePreview"
-      class="image-preview"
-      alt="Product image preview"
-    >
-  </div>
-</div>
+
+          <!-- UPLOAD IMAGE -->
+          <div class="form-field full-width">
+
+            <label for="productImageFile">
+              Upload Image
+            </label>
+
+            <input
+              type="file"
+              id="productImageFile"
+              accept="image/jpeg,image/png,image/webp"
+            >
+
+            <p class="upload-hint">
+              JPG, PNG or WEBP · Maximum 5 MB
+            </p>
+
+            <div
+              id="productImagePreviewContainer"
+              class="image-preview-container hidden"
+            >
+
+              <img
+                id="productImagePreview"
+                class="image-preview"
+                alt="Product image preview"
+              >
+
+            </div>
+
+          </div>
+
 
           <!-- PRICE -->
           <div class="form-field">
 
-            <label for="productPrice">Price (KRW)</label>
+            <label for="productPrice">
+              Price (KRW)
+            </label>
 
             <input
               type="number"
@@ -281,7 +537,9 @@
           <!-- QUANTITY -->
           <div class="form-field">
 
-            <label for="productQuantity">Quantity</label>
+            <label for="productQuantity">
+              Quantity
+            </label>
 
             <input
               type="number"
@@ -298,7 +556,9 @@
           <!-- PRIORITY -->
           <div class="form-field">
 
-            <label for="productPriority">Priority</label>
+            <label for="productPriority">
+              Priority
+            </label>
 
             <select id="productPriority">
 
@@ -322,11 +582,13 @@
           <!-- NOTES -->
           <div class="form-field full-width">
 
-            <label for="productNotes">Notes</label>
+            <label for="productNotes">
+              Notes
+            </label>
 
             <textarea
               id="productNotes"
-              placeholder="Add product details or notes (optional)"
+              placeholder="Add product or menu details (optional)"
               rows="3"
             ></textarea>
 
@@ -336,11 +598,17 @@
 
 
         <!-- SUBMIT BUTTON -->
-        <button type="submit" id="addProductButton">
+        <button
+          type="submit"
+          id="addProductButton"
+        >
           Add Product
         </button>
 
-        <p id="addProductMessage" class="message"></p>
+        <p
+          id="addProductMessage"
+          class="message"
+        ></p>
 
       </form>
 
@@ -356,7 +624,10 @@
 
 
   <!-- JAVASCRIPT -->
-  <script type="module" src="./js/auth.js"></script>
+  <script
+    type="module"
+    src="./js/auth.js"
+  ></script>
 
 </body>
 
