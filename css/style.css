@@ -2190,3 +2190,45 @@ dialog.edit-product-dialog::backdrop {
 .product-notes {
   white-space: pre-line;
 }
+
+/* ========================================
+   PRODUCT PURCHASE STATUS COLORS
+======================================== */
+
+/* Base button */
+.product-got-button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Not purchased - Gray */
+.product-got-button.is-not-started {
+  border: 1px solid #d1d5d0;
+  background: #f1f2ef;
+  color: #73796f;
+}
+
+/* Partially purchased - Yellow */
+.product-got-button.is-in-progress {
+  border: 1px solid #e5c65c;
+  background: #fff7dc;
+  color: #94751f;
+}
+
+/* Fully purchased - Green */
+.product-got-button.is-complete {
+  border: 1px solid #6f9b70;
+  background: #e7f2e5;
+  color: #376b3a;
+}
+
+/* Disabled while saving */
+.product-got-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
