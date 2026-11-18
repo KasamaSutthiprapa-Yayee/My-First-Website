@@ -1419,3 +1419,122 @@ textarea {
     transform: none;
   }
 }
+
+
+/* ========================================
+   MOBILE PRODUCT PANEL LAYOUT FIX
+   Keep expanded product list full-width
+   and prevent purchase button overflow.
+======================================== */
+
+@media (max-width: 700px) {
+  /* When a store is expanded, let its product panel use the full row. */
+  .store-item:has(> .store-product-panel:not(.hidden)) {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .store-product-panel {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .product-card {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .product-image {
+    width: 76px;
+    height: 76px;
+    max-width: 100%;
+    object-fit: cover;
+  }
+
+  .product-details {
+    width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .product-details h4 {
+    font-size: 15px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .product-price,
+  .product-price-thb {
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .product-info,
+  .product-notes {
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  /* Inline styles are applied by dashboard.js, so !important
+     is used only for layout sizing and text wrapping. */
+  .got-it-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: fit-content !important;
+    max-width: 100%;
+    min-width: 112px;
+    min-height: 46px;
+    padding: 10px 14px !important;
+    white-space: nowrap !important;
+    flex: 0 0 auto;
+    font-size: 14px !important;
+    line-height: 1.2;
+    text-align: center;
+    box-sizing: border-box;
+    touch-action: manipulation;
+  }
+
+  .product-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .product-actions button {
+    min-height: 42px;
+    flex: 0 1 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 380px) {
+  .product-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .product-image {
+    width: 64px;
+    height: 64px;
+  }
+
+  .got-it-button {
+    min-width: 104px;
+    font-size: 13px !important;
+  }
+}
