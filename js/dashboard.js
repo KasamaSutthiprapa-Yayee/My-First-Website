@@ -443,14 +443,36 @@ priceTHB.textContent = product.price_krw !== null
   priceTHB,
   quantity,
   priority
-);
-          
-          if (product.notes) {
-            const notes = document.createElement("p");
-            notes.className = "product-notes";
-            notes.textContent = product.notes;
-            details.appendChild(notes);
-          }
+);  
+         
+if (product.notes) {
+  const notes = document.createElement("p");
+  notes.className = "product-notes collapsed";
+  notes.textContent = product.notes;
+
+  const toggleNotesButton = document.createElement("button");
+  toggleNotesButton.type = "button";
+  toggleNotesButton.className = "toggle-notes-button";
+  toggleNotesButton.textContent = "อ่านเพิ่มเติม ↓";
+  toggleNotesButton.setAttribute("aria-expanded", "false");
+
+  toggleNotesButton.addEventListener("click", () => {
+    const isExpanded = notes.classList.toggle("expanded");
+
+    notes.classList.toggle("collapsed", !isExpanded);
+
+    toggleNotesButton.textContent = isExpanded
+      ? "ย่อข้อความ ↑"
+      : "อ่านเพิ่มเติม ↓";
+
+    toggleNotesButton.setAttribute(
+      "aria-expanded",
+      String(isExpanded)
+    );
+  });
+
+  details.append(notes, toggleNotesButton);
+}
 
           // Product action buttons
           const actions = document.createElement("div");
