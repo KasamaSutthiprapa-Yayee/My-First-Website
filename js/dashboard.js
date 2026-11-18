@@ -432,8 +432,8 @@ priceTHB.textContent = product.price_krw !== null
           gotItButton.className = "product-got-button";
           gotItButton.textContent =
             purchasedQty >= Number(product.quantity || 1)
-              ? "Completed ✓"
-              : "Got it!";
+              ? "Got it ✓"
+: "Got it!";
 
           gotItButton.classList.toggle(
             "is-complete",
