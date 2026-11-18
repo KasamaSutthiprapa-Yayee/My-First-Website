@@ -1994,3 +1994,79 @@ dialog.edit-product-dialog::backdrop {
 .product-actions .product-got-button.is-complete {
   white-space: normal;
 }
+
+/* ========================================
+   STORE MANAGEMENT ICONS - TOP RIGHT
+======================================== */
+
+.store-item {
+  position: relative;
+}
+
+.store-management-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0;
+}
+
+.store-management-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+
+  padding: 0;
+  border-radius: 9px;
+
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.store-edit-button {
+  border: 1px solid var(--border);
+  background: #f3f5ef;
+  color: var(--primary-dark);
+}
+
+.store-edit-button:hover {
+  background: var(--soft-green);
+}
+
+.store-delete-button {
+  border: 1px solid #ead1cc;
+  background: #fff7f5;
+  color: #a34c3f;
+}
+
+.store-delete-button:hover {
+  background: #fbe8e4;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .store-management-actions {
+    top: 8px;
+    right: 8px;
+    gap: 5px;
+  }
+
+  .store-management-actions button {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 14px;
+  }
+}
