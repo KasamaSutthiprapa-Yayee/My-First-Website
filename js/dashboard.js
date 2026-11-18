@@ -206,6 +206,78 @@ export async function loadDashboard() {
         }
       });
 
+      // Store management buttons
+      const storeActions = document.createElement("div");
+      storeActions.className = "store-management-actions";
+
+      const editStoreButton = document.createElement("button");
+      editStoreButton.type = "button";
+      editStoreButton.className = "store-edit-button";
+      editStoreButton.textContent = "✏️ Edit";
+
+      const deleteStoreButton = document.createElement("button");
+      deleteStoreButton.type = "button";
+      deleteStoreButton.className = "store-delete-button";
+      deleteStoreButton.textContent = "🗑️ Delete";
+
+      editStoreButton.addEventListener("click", event => {
+        event.stopPropagation();
+        openStoreEditDialog(store, workspaceId);
+      });
+
+      deleteStoreButton.addEventListener("click", async event => {
+        event.stopPropagation();
+
+        const confirmed = confirm(
+          `ต้องการลบ "${store.name}" ใช่หรือไม่?\n\n` +
+          "ระบบจะลบได้เฉพาะร้านที่ไม่มีสินค้าและเมนูอาหารอยู่เท่านั้น"
+        );
+
+        if (!confirmed) return;
+
+        deleteStoreButton.disabled = true;
+        deleteStoreButton.textContent = "Checking...";
+
+        try {
+          // Protect existing products and menu items
+          const { count, error: countError } = await supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("workspace_id", workspaceId)
+            .eq("store_id", store.id);
+
+          if (countError) throw countError;
+
+          if (count > 0) {
+            alert(
+              `ยังไม่สามารถลบร้าน "${store.name}" ได้ค่ะ\n\n` +
+              `มีสินค้า/เมนูอาหารอยู่ ${count} รายการ\n` +
+              "กรุณาย้ายหรือลบรายการเหล่านั้นก่อน"
+            );
+            return;
+          }
+
+          const { error: deleteError } = await supabase
+            .from("stores")
+            .delete()
+            .eq("id", store.id)
+            .eq("workspace_id", workspaceId);
+
+          if (deleteError) throw deleteError;
+
+          alert("ลบร้านเรียบร้อยแล้ว");
+          await loadDashboard();
+
+        } catch (error) {
+          console.error("Delete Store Error:", error);
+          alert("ไม่สามารถลบร้านได้: " + error.message);
+
+        } finally {
+          deleteStoreButton.disabled = false;
+          deleteStoreButton.textContent = "🗑️ Delete";
+        }
+      });
+
       // Render products or menu
       const panelTitle = document.createElement("h3");
       panelTitle.className = "store-product-title";
@@ -807,7 +879,7 @@ gotItButton.addEventListener("click", async () => {
         });
       }
 
-      storeItem.append(card, productPanel);
+      storeItem.append(card, storeActions, productPanel);
       storeGrid.appendChild(storeItem);
     });
 
@@ -1068,6 +1140,27 @@ function setupAddStoreForm(workspaceId) {
       return;
     }
 
+    // Check duplicate store name before creating
+    const { data: existingStore, error: checkError } =
+      await supabase
+        .from("stores")
+        .select("id")
+        .eq("workspace_id", workspaceId)
+        .eq("name", name)
+        .maybeSingle();
+
+    if (checkError) {
+      message.textContent =
+        "Unable to check store name: " + checkError.message;
+      return;
+    }
+
+    if (existingStore) {
+      message.textContent =
+        `ร้าน "${name}" มีอยู่แล้วในรายการ กรุณาใช้ชื่ออื่นค่ะ`;
+      return;
+    }
+
     const payload = {
       workspace_id: workspaceId,
       name,
@@ -1137,4 +1230,243 @@ function setupAddStoreForm(workspaceId) {
       button.textContent = "Add Store / Restaurant";
     }
   });
+}
+
+// ========================================
+// EDIT STORE / RESTAURANT
+// ========================================
+
+function openStoreEditDialog(store, workspaceId) {
+  const dialog = document.createElement("dialog");
+  dialog.className = "edit-product-dialog";
+
+  const isRestaurant = store.store_type === "restaurant";
+
+  dialog.innerHTML = `
+    <form class="edit-product-form" id="editStoreForm">
+      <h2>Edit Store / Restaurant</h2>
+      <p>Update your place information</p>
+
+      <div class="edit-form-grid">
+
+        <div class="edit-form-field">
+          <label for="editStoreType">Place Type</label>
+          <select id="editStoreType">
+            <option value="store">Shopping Store</option>
+            <option value="restaurant">Restaurant</option>
+          </select>
+        </div>
+
+        <div class="edit-form-field">
+          <label for="editStoreName">Name</label>
+          <input id="editStoreName" type="text" required>
+        </div>
+
+        <div class="edit-form-field">
+          <label for="editStoreCategory">Category</label>
+          <input id="editStoreCategory" type="text">
+        </div>
+
+        <div class="edit-form-field edit-full-width restaurant-edit-field">
+          <label for="editStoreAddress">Address</label>
+          <input id="editStoreAddress" type="text">
+        </div>
+
+        <div class="edit-form-field edit-full-width restaurant-edit-field">
+          <label for="editStoreMaps">Google Maps URL</label>
+          <input id="editStoreMaps" type="url">
+        </div>
+
+        <div class="edit-form-field restaurant-edit-field">
+          <label for="editStorePhone">Phone</label>
+          <input id="editStorePhone" type="tel">
+        </div>
+
+        <div class="edit-form-field restaurant-edit-field">
+          <label for="editStoreWebsite">Website</label>
+          <input id="editStoreWebsite" type="url">
+        </div>
+
+        <div class="edit-form-field edit-full-width restaurant-edit-field">
+          <label for="editStoreHours">Opening Hours</label>
+          <input id="editStoreHours" type="text">
+        </div>
+
+        <div class="edit-form-field edit-full-width restaurant-edit-field">
+          <label for="editStoreDescription">Description</label>
+          <textarea id="editStoreDescription" rows="3"></textarea>
+        </div>
+
+        <div class="edit-form-field edit-full-width restaurant-edit-field">
+          <label for="editStoreNotes">Notes</label>
+          <textarea id="editStoreNotes" rows="3"></textarea>
+        </div>
+
+      </div>
+
+      <p id="editStoreMessage" class="edit-form-message"></p>
+
+      <div class="edit-form-actions">
+        <button type="button" class="edit-cancel-button" id="cancelStoreEdit">
+          Cancel
+        </button>
+        <button type="submit" class="edit-save-button" id="saveStoreEdit">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  `;
+
+  document.body.appendChild(dialog);
+
+  const form = dialog.querySelector("#editStoreForm");
+  const typeInput = dialog.querySelector("#editStoreType");
+  const nameInput = dialog.querySelector("#editStoreName");
+  const categoryInput = dialog.querySelector("#editStoreCategory");
+
+  const restaurantFields = dialog.querySelectorAll(
+    ".restaurant-edit-field"
+  );
+
+  const message = dialog.querySelector("#editStoreMessage");
+  const saveButton = dialog.querySelector("#saveStoreEdit");
+
+  // Fill current store information
+  typeInput.value = store.store_type || "store";
+  nameInput.value = store.name || "";
+  categoryInput.value = store.category || "";
+
+  dialog.querySelector("#editStoreAddress").value =
+    store.address || "";
+
+  dialog.querySelector("#editStoreMaps").value =
+    store.maps_url || "";
+
+  dialog.querySelector("#editStorePhone").value =
+    store.phone || "";
+
+  dialog.querySelector("#editStoreWebsite").value =
+    store.website || "";
+
+  dialog.querySelector("#editStoreHours").value =
+    store.opening_hours || "";
+
+  dialog.querySelector("#editStoreDescription").value =
+    store.description || "";
+
+  dialog.querySelector("#editStoreNotes").value =
+    store.notes || "";
+
+  function updateRestaurantFields() {
+    const show = typeInput.value === "restaurant";
+
+    restaurantFields.forEach(field => {
+      field.classList.toggle("hidden", !show);
+    });
+  }
+
+  typeInput.addEventListener("change", updateRestaurantFields);
+  updateRestaurantFields();
+
+  dialog.querySelector("#cancelStoreEdit").addEventListener(
+    "click",
+    () => dialog.close()
+  );
+
+  dialog.addEventListener("close", () => dialog.remove());
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const name = nameInput.value.trim();
+    const storeType = typeInput.value;
+
+    if (!name) {
+      message.textContent = "Please enter a name.";
+      return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+    message.textContent = "";
+
+    try {
+      // Check duplicate name in this workspace
+      const { data: duplicate, error: duplicateError } =
+        await supabase
+          .from("stores")
+          .select("id")
+          .eq("workspace_id", workspaceId)
+          .eq("name", name)
+          .neq("id", store.id)
+          .maybeSingle();
+
+      if (duplicateError) throw duplicateError;
+
+      if (duplicate) {
+        message.textContent =
+          "This store or restaurant name already exists.";
+        return;
+      }
+
+      const payload = {
+        name,
+        store_type: storeType,
+        category: categoryInput.value.trim() ||
+          (storeType === "restaurant" ? "Restaurant" : "Shopping Store"),
+
+        address: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreAddress").value.trim() || null
+          : null,
+
+        maps_url: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreMaps").value.trim() || null
+          : null,
+
+        phone: storeType === "restaurant"
+          ? dialog.querySelector("#editStorePhone").value.trim() || null
+          : null,
+
+        website: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreWebsite").value.trim() || null
+          : null,
+
+        opening_hours: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreHours").value.trim() || null
+          : null,
+
+        description: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreDescription").value.trim() || null
+          : null,
+
+        notes: storeType === "restaurant"
+          ? dialog.querySelector("#editStoreNotes").value.trim() || null
+          : null
+      };
+
+      const { error } = await supabase
+        .from("stores")
+        .update(payload)
+        .eq("id", store.id)
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+
+      dialog.close();
+      await loadDashboard();
+
+      alert("Store information updated successfully!");
+
+    } catch (error) {
+      console.error("Edit Store Error:", error);
+      message.textContent =
+        "Unable to update store: " + error.message;
+
+    } finally {
+      saveButton.disabled = false;
+      saveButton.textContent = "Save Changes";
+    }
+  });
+
+  dialog.showModal();
 }
