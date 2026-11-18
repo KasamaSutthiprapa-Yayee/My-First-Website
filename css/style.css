@@ -706,16 +706,15 @@ button {
 }
 
 .product-edit-button {
-  border: 1px solid var(--primary);
-  background: var(--soft-green);
-  color: var(--primary-dark);
+  border: 1px solid #e6c85c;
+  background: #fff8dc;
+  color: #8a6d1d;
 }
 
 .product-edit-button:hover {
-  background: var(--primary);
-  color: white;
+  background: #f2d675;
+  color: #5c4810;
 }
-
 .product-delete-button {
   border: 1px solid #ead6d1;
   background: #fff8f6;
