@@ -927,9 +927,8 @@ gotItButton.addEventListener("click", async () => {
         });
       }
 
-      storeItem.append(card, productPanel);
-card.appendChild(storeActions);
-      storeGrid.appendChild(storeItem);
+     storeItem.append(card, storeActions, productPanel);
+storeGrid.appendChild(storeItem);
       if (activeExpandedStoreId === store.id) {
   productPanel.classList.remove("hidden");
   card.setAttribute("aria-expanded", "true");
