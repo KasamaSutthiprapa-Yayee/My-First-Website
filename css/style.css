@@ -2092,3 +2092,43 @@ dialog.edit-product-dialog::backdrop {
   }
 }
 
+
+/* ========================================
+   MOBILE - EXPANDABLE PRODUCT DESCRIPTION
+======================================== */
+
+/* Hide toggle button on desktop */
+.toggle-notes-button {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .product-notes.collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+
+  .product-notes.expanded {
+    display: block;
+    overflow: visible;
+  }
+
+  .toggle-notes-button {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 0;
+
+    border: none;
+    background: transparent;
+
+    color: var(--primary-dark);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+  }
+}
