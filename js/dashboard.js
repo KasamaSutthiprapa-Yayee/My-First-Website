@@ -427,22 +427,33 @@ const exchangeRate = Number(workspace.currency_rate) || 0.0253;
 
 priceTHB.textContent = product.price_krw !== null
   ? `ประมาณ ฿${Math.round(Number(product.price_krw) * exchangeRate).toLocaleString("th-TH")}`
-  : "";
-          
-          const quantity = document.createElement("p");
-          quantity.className = "product-info";
-          quantity.textContent = `Quantity: ${product.quantity}`;
+  : "";       
 
-          const priority = document.createElement("p");
-          priority.className = "product-info";
-          priority.textContent = `Priority: ${product.priority || "normal"}`;
+// Quantity
+const quantity = document.createElement("p");
+quantity.className = "product-info";
+quantity.textContent = `Quantity: ${product.quantity}`;
 
-          details.append(
+// Priority
+const priority = document.createElement("p");
+priority.className = "product-info";
+priority.textContent = `Priority: ${product.priority || "normal"}`;
+
+// Price row: KRW + THB
+const priceRow = document.createElement("div");
+priceRow.className = "product-price-row";
+priceRow.append(price, priceTHB);
+
+// Product meta: Quantity + Priority
+const productMeta = document.createElement("div");
+productMeta.className = "product-meta";
+productMeta.append(quantity, priority);
+
+// Add product information
+details.append(
   productName,
-  price,
-  priceTHB,
-  quantity,
-  priority
+  priceRow,
+  productMeta
 );          
 
 if (product.notes) {
