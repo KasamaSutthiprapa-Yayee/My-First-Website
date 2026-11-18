@@ -2070,3 +2070,18 @@ dialog.edit-product-dialog::backdrop {
     font-size: 14px;
   }
 }
+
+/* ========================================
+   MOBILE - PLANNED BUDGET CARD WIDTH
+======================================== */
+
+@media (max-width: 700px) {
+  .budget-stat-card {
+    grid-column: span 2;
+  }
+
+  .budget-stat-card .budget-thb {
+    display: block;
+    white-space: nowrap;
+  }
+}
