@@ -277,6 +277,8 @@ export async function loadDashboard() {
           deleteStoreButton.textContent = "🗑️ Delete";
         }
       });
+    
+      storeActions.append(editStoreButton, deleteStoreButton);
 
       // Render products or menu
       const panelTitle = document.createElement("h3");
