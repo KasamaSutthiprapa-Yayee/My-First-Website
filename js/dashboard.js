@@ -14,6 +14,7 @@ const storeIcons = {
 };
 
 let activeWorkspaceId = null;
+let activeExpandedStoreId = null;
 
 export async function loadDashboard() {
   const message = document.getElementById("dashboardMessage");
@@ -179,6 +180,7 @@ export async function loadDashboard() {
       // Toggle store products
       function toggleStore() {
         const isOpen = !productPanel.classList.contains("hidden");
+        activeExpandedStoreId = isOpen ? null : store.id;
 
         // Close other stores
         storeGrid.querySelectorAll(".store-product-panel").forEach(panel => {
@@ -458,7 +460,8 @@ gotItButton.addEventListener("click", async () => {
 
       if (error) throw error;
     }
-
+   
+    activeExpandedStoreId = store.id;
     await loadDashboard();
 
   } catch (error) {
@@ -884,6 +887,11 @@ gotItButton.addEventListener("click", async () => {
       storeItem.append(card, productPanel);
 card.appendChild(storeActions);
       storeGrid.appendChild(storeItem);
+      if (activeExpandedStoreId === store.id) {
+  productPanel.classList.remove("hidden");
+  card.setAttribute("aria-expanded", "true");
+  card.classList.add("active");
+}
     });
 
     // 6. Setup Add Product and Add Store forms
