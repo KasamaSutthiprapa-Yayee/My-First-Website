@@ -1558,3 +1558,252 @@ textarea {
 .store-grid > .store-item:nth-child(7) {
   order: 6;
 }
+
+/* ========================================
+   ADD STORE / RESTAURANT FORM
+======================================== */
+
+.add-store-section {
+  margin-top: 42px;
+  padding: 34px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.035);
+}
+
+.add-store-section .section-heading {
+  margin-bottom: 26px;
+}
+
+.add-store-section .section-heading h2 {
+  font-size: 24px;
+  letter-spacing: -0.5px;
+}
+
+.add-store-section form {
+  max-width: none;
+  margin-top: 0;
+}
+
+.store-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 24px;
+}
+
+.store-form-grid .form-field {
+  min-width: 0;
+}
+
+.store-form-grid .form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.add-store-section label {
+  display: block;
+  margin: 0 0 9px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.add-store-section input,
+.add-store-section select,
+.add-store-section textarea {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fcfcfa;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.add-store-section textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.add-store-section input:focus,
+.add-store-section select:focus,
+.add-store-section textarea:focus {
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 3px var(--soft-green);
+}
+
+.restaurant-form-fields {
+  margin-top: 30px;
+  padding: 24px;
+  border-radius: 14px;
+  background: #f8f9f5;
+  border: 1px solid var(--border);
+}
+
+.restaurant-form-fields h3 {
+  margin-bottom: 22px;
+  font-size: 17px;
+}
+
+#addStoreButton {
+  display: block;
+  width: 100%;
+  margin-top: 28px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 11px;
+  background: var(--primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+#addStoreButton:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+#addStoreButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+
+/* ========================================
+   RESTAURANT INFORMATION
+======================================== */
+
+.restaurant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f8f9f5;
+}
+
+.restaurant-info p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-link {
+  display: inline-block;
+  width: fit-content;
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ========================================
+   GOT IT / PURCHASE BUTTON
+======================================== */
+
+.product-got-button {
+  padding: 8px 16px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: var(--soft-green);
+  color: var(--primary-dark);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.product-got-button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.product-got-button.is-complete {
+  border-color: #5b8c61;
+  background: #e7f2e7;
+  color: #397344;
+}
+
+.product-got-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+
+/* ========================================
+   STORE ORDER
+   Preserve NO BRAND / OLIVE YOUNG order
+======================================== */
+
+.store-grid > .store-item.store-no-brand {
+  order: 7;
+}
+
+.store-grid > .store-item.store-olive-young {
+  order: 6;
+}
+
+
+/* ========================================
+   MOBILE RESPONSIVE
+======================================== */
+
+@media (max-width: 700px) {
+  .add-store-section {
+    margin-top: 30px;
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .add-store-section .section-heading h2 {
+    font-size: 21px;
+  }
+
+  .store-form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .store-form-grid .form-field.full-width {
+    grid-column: auto;
+  }
+
+  .restaurant-form-fields {
+    padding: 17px;
+  }
+
+  .add-store-section input,
+  .add-store-section select,
+  .add-store-section textarea {
+    font-size: 14px;
+  }
+
+  #addStoreButton {
+    padding: 14px;
+  }
+
+  .product-actions {
+    flex-wrap: wrap;
+  }
+
+  .product-actions button {
+    padding: 8px 12px;
+  }
+}
