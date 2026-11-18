@@ -382,7 +382,16 @@ export async function loadDashboard() {
           price.textContent = product.price_krw !== null
             ? `₩${Number(product.price_krw).toLocaleString("en-US")}`
             : "Price not specified";
+          
+const priceTHB = document.createElement("p");
+priceTHB.className = "product-price-thb";
 
+const exchangeRate = Number(workspace.currency_rate) || 0.0253;
+
+priceTHB.textContent = product.price_krw !== null
+  ? `ประมาณ ฿${Math.round(Number(product.price_krw) * exchangeRate).toLocaleString("th-TH")}`
+  : "";
+          
           const quantity = document.createElement("p");
           quantity.className = "product-info";
           quantity.textContent = `Quantity: ${product.quantity}`;
@@ -392,12 +401,13 @@ export async function loadDashboard() {
           priority.textContent = `Priority: ${product.priority || "normal"}`;
 
           details.append(
-            productName,
-            price,
-            quantity,
-            priority
-          );
-
+  productName,
+  price,
+  priceTHB,
+  quantity,
+  priority
+);
+          
           if (product.notes) {
             const notes = document.createElement("p");
             notes.className = "product-notes";
