@@ -45,6 +45,13 @@ export async function loadDashboard() {
     const workspaceId = workspace.id;
     activeWorkspaceId = workspaceId;
 
+    const configuredCurrencyRate = Number(workspace.currency_rate);
+
+    const currencyRate =
+      Number.isFinite(configuredCurrencyRate) && configuredCurrencyRate > 0
+        ? configuredCurrencyRate
+        : 0.0253;
+
     // 2. Fetch stores, products and purchase progress
     const [storesResult, productsResult, purchasesResult] = await Promise.all([
       supabase
@@ -82,6 +89,7 @@ export async function loadDashboard() {
     const purchases = purchasesResult.data || [];
 
     // 3. Calculate shopping progress
+
     const totalProducts = products.length;
 
     const totalQuantity = products.reduce(
@@ -94,8 +102,25 @@ export async function loadDashboard() {
       0
     );
 
+    const remainingQuantity = Math.max(
+      totalQuantity - purchasedQuantity,
+      0
+    );
+
+    // Calculate planned budget (price x quantity)
+    const totalBudgetKRW = products.reduce(
+      (sum, item) => {
+        return sum +
+          Number(item.price_krw || 0) *
+          Number(item.quantity || 0);
+      },
+      0
+    );
+
     const percentage = totalQuantity > 0
-      ? Math.round(Math.min(purchasedQuantity / totalQuantity, 1) * 100)
+      ? Math.round(
+          Math.min(purchasedQuantity / totalQuantity, 1) * 100
+        )
       : 0;
 
     // 4. Update dashboard summary
@@ -103,6 +128,14 @@ export async function loadDashboard() {
     document.getElementById("storeCount").textContent = stores.length;
     document.getElementById("productCount").textContent = totalProducts;
     document.getElementById("purchasedCount").textContent = purchasedQuantity;
+    document.getElementById("remainingCount").textContent =
+  remainingQuantity.toLocaleString("en-US");
+
+document.getElementById("budgetKRW").textContent =
+  `₩${totalBudgetKRW.toLocaleString("en-US")}`;
+
+document.getElementById("budgetTHB").textContent =
+  `ประมาณ ฿${Math.round(totalBudgetKRW * currencyRate).toLocaleString("en-US")}`;
     document.getElementById("progressPercent").textContent = `${percentage}%`;
     document.getElementById("progressBar").style.width = `${percentage}%`;
 
