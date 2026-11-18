@@ -691,12 +691,19 @@ button {
 
 .product-actions {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
   gap: 12px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.product-actions button {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .product-actions button {
