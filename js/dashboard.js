@@ -246,14 +246,18 @@ document.getElementById("budgetTHB").textContent =
       storeActions.className = "store-management-actions";
 
       const editStoreButton = document.createElement("button");
-      editStoreButton.type = "button";
-      editStoreButton.className = "store-edit-button";
-      editStoreButton.textContent = "✏️ Edit";
+editStoreButton.type = "button";
+editStoreButton.className = "store-edit-button";
+editStoreButton.textContent = "✏️";
+editStoreButton.title = "Edit Store";
+editStoreButton.setAttribute("aria-label", "Edit Store");
 
-      const deleteStoreButton = document.createElement("button");
-      deleteStoreButton.type = "button";
-      deleteStoreButton.className = "store-delete-button";
-      deleteStoreButton.textContent = "🗑️ Delete";
+const deleteStoreButton = document.createElement("button");
+deleteStoreButton.type = "button";
+deleteStoreButton.className = "store-delete-button";
+deleteStoreButton.textContent = "🗑️";
+deleteStoreButton.title = "Delete Store";
+deleteStoreButton.setAttribute("aria-label", "Delete Store");
 
       editStoreButton.addEventListener("click", event => {
         event.stopPropagation();
@@ -271,7 +275,7 @@ document.getElementById("budgetTHB").textContent =
         if (!confirmed) return;
 
         deleteStoreButton.disabled = true;
-        deleteStoreButton.textContent = "Checking...";
+        deleteStoreButton.textContent = "…";
 
         try {
           // Protect existing products and menu items
@@ -309,7 +313,7 @@ document.getElementById("budgetTHB").textContent =
 
         } finally {
           deleteStoreButton.disabled = false;
-          deleteStoreButton.textContent = "🗑️ Delete";
+          deleteStoreButton.textContent = "🗑️";
         }
       });
     
