@@ -1497,7 +1497,7 @@ textarea {
 
   /* Inline styles are applied by dashboard.js, so !important
      is used only for layout sizing and text wrapping. */
-  .got-it-button {
+  .product-got-button {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
