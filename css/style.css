@@ -2182,3 +2182,11 @@ dialog.edit-product-dialog::backdrop {
     cursor: pointer;
   }
 }
+
+/* ========================================
+   PRODUCT NOTES - PRESERVE BULLET FORMATTING
+======================================== */
+
+.product-notes {
+  white-space: pre-line;
+}
