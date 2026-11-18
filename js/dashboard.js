@@ -881,7 +881,8 @@ gotItButton.addEventListener("click", async () => {
         });
       }
 
-      storeItem.append(card, storeActions, productPanel);
+      storeItem.append(card, productPanel);
+card.appendChild(storeActions);
       storeGrid.appendChild(storeItem);
     });
 
