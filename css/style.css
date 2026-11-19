@@ -2359,3 +2359,209 @@ dialog.edit-product-dialog::backdrop {
     padding: 4px 8px;
   }
 }
+
+/* =====================================
+   SEOUL BUCKET LIST - BRAND HEADER
+===================================== */
+
+.topbar {
+  min-height: 112px;
+  height: auto;
+  padding: 16px 22px;
+  gap: 20px;
+  border: 1px solid #f0dedc;
+  border-radius: 22px;
+
+  background: linear-gradient(
+    110deg,
+    #fffaf4 0%,
+    #fcebed 48%,
+    #e9eef9 100%
+  );
+
+  box-shadow:
+    0 12px 28px rgba(38, 59, 90, 0.08),
+    0 3px 8px rgba(197, 141, 120, 0.06);
+}
+
+/* Brand layout */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+/* Shopping sticker logo */
+.brand-logo {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 39px;
+  background: #fffdf9;
+  border: 2px solid #f3d9d4;
+  border-radius: 20px;
+  box-shadow: 0 5px 12px rgba(38, 59, 90, 0.09);
+  transform: rotate(-3deg);
+}
+
+.brand-logo-flag {
+  position: absolute;
+  right: -7px;
+  bottom: -5px;
+  font-size: 19px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 2px 6px rgba(38, 59, 90, 0.12);
+}
+
+/* Brand name and tagline */
+.brand-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.brand-title strong {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(18px, 2vw, 25px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  color: #263b5a;
+}
+
+.brand-heart {
+  color: #e58b9b;
+  font-size: 27px;
+  line-height: 1;
+}
+
+.brand-tagline {
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: #987b87;
+}
+
+/* Category tags */
+.brand-categories {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 11px;
+  border-radius: 30px;
+
+  font-family: "Montserrat", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+
+  color: #263b5a;
+  border: 1px solid rgba(38, 59, 90, 0.05);
+}
+
+.item-tag {
+  background: #f9dfe1;
+}
+
+.food-tag {
+  background: #f8e5c9;
+}
+
+.musttry-tag {
+  background: #f8edc9;
+}
+
+.shopping-tag {
+  background: #dcebf5;
+}
+
+.souvenir-tag {
+  background: #e9e0f4;
+}
+
+/* Keep logout button recognizable */
+.topbar .logout-button {
+  flex-shrink: 0;
+}
+
+/* Mobile header */
+@media (max-width: 700px) {
+  .topbar {
+    min-height: 0;
+    padding: 14px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .brand {
+    gap: 10px;
+    flex: 1;
+  }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    font-size: 29px;
+    border-radius: 15px;
+  }
+
+  .brand-logo-flag {
+    font-size: 14px;
+    right: -5px;
+    bottom: -4px;
+  }
+
+  .brand-title strong {
+    font-size: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-heart {
+    font-size: 20px;
+  }
+
+  .brand-tagline {
+    font-size: 9px;
+  }
+
+  .brand-categories {
+    gap: 5px;
+  }
+
+  .category-tag {
+    padding: 5px 8px;
+    font-size: 9px;
+  }
+
+  .topbar .logout-button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
