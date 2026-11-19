@@ -1247,10 +1247,10 @@ textarea {
     overflow-wrap: anywhere;
   }
 
-  .product-card {
-    gap: 10px;
-    padding: 13px 0;
-  }
+.product-card {
+  gap: 12px;
+  padding: 14px 0;
+}
 
   .product-image {
     width: 68px;
