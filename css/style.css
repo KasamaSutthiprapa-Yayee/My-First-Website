@@ -1473,12 +1473,13 @@ textarea {
     overflow-wrap: anywhere;
   }
 
-  .product-details h4 {
-    font-size: 15px;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-    word-break: normal;
-  }
+.product-details h4 {
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 7px;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
 
   .product-price,
   .product-price-thb {
