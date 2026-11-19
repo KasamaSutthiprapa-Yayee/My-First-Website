@@ -1281,21 +1281,25 @@ textarea {
     line-height: 1.5;
   }
 
-  .product-actions button {
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 40px;
-  padding: 9px 8px;
-  font-size: 12px;
-  touch-action: manipulation;
+.product-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
 }
-  
-  .product-actions button {
-    min-height: 40px;
-    padding: 9px 13px;
+
+.product-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px 6px;
     font-size: 12px;
+    white-space: nowrap;
     touch-action: manipulation;
-  }
+}
 
   .add-product-section {
     margin-top: 28px;
