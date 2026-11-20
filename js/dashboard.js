@@ -6,8 +6,7 @@ import { resetProductImagePreview } from "./image-preview.js";
 const storeIcons = {
   DAISO: "🏠",
   "OLIVE YOUNG": "🧴",
-  CU: "🥤",
-  GS25: "🍙",
+  "CU,G25": "🥤",
   MUSINSA: "👕",
   EMART: "🛒",
   "NO BRAND": "🟡"
