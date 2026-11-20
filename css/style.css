@@ -2957,3 +2957,8 @@ dialog.edit-product-dialog::backdrop {
     font-size: 15px;
   }
 }
+
+/* Store Section Heading Spacing */
+.stores-section h2 {
+  margin-bottom: 20px;
+}
