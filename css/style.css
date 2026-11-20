@@ -277,9 +277,11 @@ button {
 
 .progress-section {
   margin-top: 42px;
-  padding: 28px;
-  border-radius: 16px;
-  background: var(--soft-green);
+  padding: 30px;
+  border-radius: 22px;
+  background: #E9EDF4;
+  border: 1px solid #E1E6EF;
+  box-shadow: 0 4px 18px rgba(35, 48, 72, 0.035);
 }
 
 .section-heading {
