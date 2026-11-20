@@ -2726,3 +2726,58 @@ dialog.edit-product-dialog::backdrop {
     opacity: 0.2;
   }
 }
+
+/* =====================================
+   FEATURED PLANNED BUDGET CARD
+===================================== */
+
+.budget-stat-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    #FFFFFF 0%,
+    #F4F6FA 100%
+  );
+  border: 1px solid #DCE3ED;
+  box-shadow: 0 6px 22px rgba(38, 54, 80, 0.07);
+}
+
+/* Soft decorative circle */
+.budget-stat-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 150px;
+  height: 150px;
+  right: -55px;
+  bottom: -85px;
+  border-radius: 50%;
+  background: rgba(207, 219, 234, 0.35);
+  border: 1px solid rgba(154, 174, 199, 0.2);
+}
+
+.budget-stat-card .stat-label,
+.budget-stat-card strong,
+.budget-stat-card .budget-thb {
+  position: relative;
+  z-index: 1;
+}
+
+.budget-stat-card .stat-label {
+  color: #9A806E;
+}
+
+.budget-stat-card strong {
+  font-size: 38px;
+  color: #263650;
+  letter-spacing: -1.5px;
+}
+
+.budget-stat-card .budget-thb {
+  display: block;
+  margin-top: 5px;
+  color: #777D89;
+  font-size: 15px;
+}
