@@ -1,25 +1,26 @@
 
+
 :root {
   /* Background & Surface */
-  --background: #f5f1eb;
-  --surface: #fffdf9;
+  --background: #F5F1EB;
+  --surface: #FFFFFF;
 
-  /* Korean Minimal × Modern Premium */
-  --primary: #263b5a;
-  --primary-dark: #172943;
+  /* Korean Minimal Premium */
+  --primary: #263650;
+  --primary-dark: #192A43;
 
   /* Typography */
-  --text: #252d3a;
-  --muted: #85838a;
+  --text: #252D3A;
+  --muted: #85838A;
 
   /* Borders & Soft Colors */
-  --border: #e8dfd5;
-  --soft-green: #e9edf3;
+  --border: #E6DDD2;
+  --soft-green: #E8ECEF;
 
   /* Accent Colors */
-  --accent: #c58d78;
-  --accent-soft: #f3e5dc;
-  --champagne: #e8d3b5;
+  --accent: #B98772;
+  --accent-soft: #F2E5DC;
+  --champagne: #E8D3B5;
 }
 
 * {
