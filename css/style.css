@@ -2803,3 +2803,49 @@ dialog.edit-product-dialog::backdrop {
   color: #777D89;
   font-size: 15px;
 }
+
+/* =====================================
+   SHOPPING PROGRESS HEADING ALIGNMENT
+===================================== */
+
+.progress-section .section-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.progress-section .section-heading h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.progress-section .section-heading strong {
+  display: block;
+  flex-shrink: 0;
+  color: #263650;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: right;
+}
+
+/* Premium progress track */
+.progress-section .progress-track {
+  height: 12px;
+  background: #D5DFEA;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-section .progress-fill {
+  background: linear-gradient(
+    90deg,
+    #8FA9C7,
+    #B3C2D5,
+    #C5A987
+  );
+}
