@@ -2962,3 +2962,66 @@ dialog.edit-product-dialog::backdrop {
 .stores-section h2 {
   margin-bottom: 20px;
 }
+
+/* =====================================
+   PREMIUM STORE ACTION BUTTONS
+===================================== */
+
+.store-management-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  margin: 0;
+}
+
+.store-management-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+/* Edit - Soft Champagne */
+.store-edit-button {
+  border: 1px solid #E8DFD5;
+  background: #F5F2EB;
+  color: #8D755F;
+}
+
+.store-edit-button:hover {
+  background: #EDE5D8;
+  border-color: #D7C5AC;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(141, 117, 95, 0.12);
+}
+
+/* Delete - Soft Rose */
+.store-delete-button {
+  border: 1px solid #F0D8D4;
+  background: #FFF7F5;
+  color: #B76D65;
+}
+
+.store-delete-button:hover {
+  background: #FBEAE7;
+  border-color: #E8C3BD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(183, 109, 101, 0.12);
+}
+
+/* Disabled */
+.store-management-actions button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
