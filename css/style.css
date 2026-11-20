@@ -2630,3 +2630,31 @@ dialog.edit-product-dialog::backdrop {
     );
   }
 }
+
+/* =====================================
+   WINTER ART - SOFT BLEND FIX
+===================================== */
+
+/* Remove the old solid-color overlay */
+.header-seoul-art::before {
+  display: none;
+}
+
+/* Fade the illustration naturally into the header */
+.header-seoul-art svg {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 10%,
+    #000000 28%,
+    #000000 100%
+  );
+
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 10%,
+    #000000 28%,
+    #000000 100%
+  );
+}
