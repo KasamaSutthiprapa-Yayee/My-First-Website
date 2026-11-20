@@ -506,9 +506,9 @@ button {
     padding: 0 18px;
   }
 
-  .hero {
-    padding: 45px 0 30px;
-  }
+ .hero {
+  padding: 45px 18px 30px;
+}
 
   .stats-grid {
     grid-template-columns: 1fr;
@@ -3359,5 +3359,22 @@ dialog.edit-product-dialog::backdrop {
   /* Prevent content from being hidden behind navigation */
   .dashboard-page {
     padding-bottom: 110px;
+  }
+}
+
+/* Mobile Store Management Buttons */
+@media (max-width: 700px) {
+  .store-management-actions {
+    gap: 6px;
+  }
+
+  .store-management-actions button {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    font-size: 17px;
+    border-radius: 11px;
   }
 }
