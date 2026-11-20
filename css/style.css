@@ -3235,6 +3235,13 @@ dialog.edit-product-dialog::backdrop {
   transition: background 0.2s, color 0.2s;
 }
 
+/* Stores navigation frame */
+.dashboard-nav .nav-item:nth-child(2) {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(197, 141, 120, 0.25);
+  box-shadow: 0 2px 8px rgba(38, 59, 90, 0.05);
+}
+
 .dashboard-nav .nav-icon {
   font-size: 21px;
   line-height: 1;
