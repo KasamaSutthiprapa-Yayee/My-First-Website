@@ -3247,17 +3247,36 @@ dialog.edit-product-dialog::backdrop {
   line-height: 1;
 }
 
+
+/* Korean Pastel Navigation */
+
+/* Home - Soft Blue */
 .dashboard-nav .nav-item:hover,
 .dashboard-nav .nav-item.active {
-  background: #E8F2F1;
-  color: #087F83;
+  background: #DDF1F8;
+  color: #27849A;
 }
 
+/* Stores - Lavender */
+.dashboard-nav .nav-item:nth-child(2) {
+  background: #EEE5FA;
+  border: 1px solid #E1D3F2;
+  color: #8063A8;
+}
+
+.dashboard-nav .nav-item:nth-child(2):hover,
+.dashboard-nav .nav-item:nth-child(2).active {
+  background: #E2D4F3;
+  color: #70518F;
+}
+
+/* Add Item / Add Store - Peach */
 .dashboard-nav .nav-item.nav-add {
-  background: #FFF3E8;
-  color: #A66A3F;
+  background: #FFF0E3;
+  color: #B8794D;
 }
 
 .dashboard-nav .nav-item.nav-add:hover {
-  background: #FCE5D2;
+  background: #FCE3D0;
 }
+
