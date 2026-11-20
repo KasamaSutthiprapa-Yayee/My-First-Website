@@ -3280,3 +3280,84 @@ dialog.edit-product-dialog::backdrop {
   background: #FCE3D0;
 }
 
+/* ========================================
+   MOBILE BOTTOM NAVIGATION
+======================================== */
+
+@media (max-width: 700px) {
+
+  .dashboard-nav {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    transform: none;
+
+    width: auto;
+    padding: 8px 10px;
+    gap: 6px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: 0 8px 28px rgba(38, 59, 90, 0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    z-index: 1000;
+  }
+
+  .dashboard-nav .nav-item {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    min-height: 64px;
+    padding: 8px 3px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    border-radius: 16px;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .dashboard-nav .nav-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  /* Home - Soft Blue */
+  .dashboard-nav .nav-item:first-child.active,
+  .dashboard-nav .nav-item:first-child:hover {
+    background: #DDF1F8;
+    color: #27849A;
+  }
+
+  /* Stores - Lavender */
+  .dashboard-nav .nav-item:nth-child(2) {
+    background: #EEE5FA;
+    color: #8063A8;
+    border: 1px solid #E1D3F2;
+  }
+
+  /* Add buttons - Peach */
+  .dashboard-nav .nav-item.nav-add {
+    background: #FFF0E3;
+    color: #B8794D;
+  }
+
+  /* Prevent content from being hidden behind navigation */
+  .dashboard-page {
+    padding-bottom: 110px;
+  }
+}
