@@ -3025,3 +3025,93 @@ dialog.edit-product-dialog::backdrop {
   transform: none;
   box-shadow: none;
 }
+
+/* =====================================
+   SEOUL PREMIUM PRODUCT CARD
+===================================== */
+
+.product-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 20px 4px;
+  border-top: 1px solid #E8DFD5;
+}
+
+.product-image {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 15px;
+  background: #F3F0E9;
+  border: 1px solid #EAE4DB;
+}
+
+.product-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-details h4 {
+  margin: 2px 0 10px;
+  color: #263650;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.product-price {
+  color: #263650;
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 0;
+  letter-spacing: -0.3px;
+}
+
+.product-price-thb {
+  color: #85838A;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.product-info {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #F3F0E9;
+  color: #777D89;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.product-notes {
+  color: #85838A;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+  .product-card {
+    gap: 13px;
+    padding: 17px 2px;
+  }
+
+  .product-image {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+  }
+
+  .product-details h4 {
+    font-size: 14px;
+  }
+
+  .product-price {
+    font-size: 15px;
+  }
+}
