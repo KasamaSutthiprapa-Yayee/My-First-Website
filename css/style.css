@@ -3378,3 +3378,21 @@ dialog.edit-product-dialog::backdrop {
     border-radius: 11px;
   }
 }
+/* MOBILE STORE MANAGEMENT BUTTONS */
+@media (max-width: 700px) {
+  .store-management-actions {
+    gap: 6px;
+  }
+
+  .store-edit-button,
+  .store-delete-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+}
