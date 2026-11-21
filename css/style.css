@@ -3401,3 +3401,10 @@ dialog.edit-product-dialog::backdrop {
     gap: 4px !important;
   }
 }
+/* MOBILE HERO INNER SPACING FIX */
+@media (max-width: 700px) {
+  .hero {
+    padding-left: 36px !important;
+    padding-right: 36px !important;
+  }
+}
