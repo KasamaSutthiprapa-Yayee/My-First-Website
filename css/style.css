@@ -3382,3 +3382,22 @@ dialog.edit-product-dialog::backdrop {
     flex-shrink: 0;
   }
 }
+/* FINAL FIX - MOBILE STORE ACTION BUTTONS */
+@media (max-width: 700px) {
+  .store-management-actions .store-edit-button,
+  .store-management-actions .store-delete-button {
+    flex: 0 0 26px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    border-radius: 7px !important;
+  }
+
+  .store-management-actions {
+    gap: 4px !important;
+  }
+}
