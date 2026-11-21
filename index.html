@@ -84,6 +84,53 @@
 
   </main>
 
+<!-- RESET PASSWORD PAGE -->
+<main id="resetPasswordPage" class="login-page hidden">
+  <div class="login-card">
+    <div class="brand-icon">K</div>
+
+    <p class="eyebrow">SEOUL SHOPPING COLLECTION</p>
+
+    <h1>Set New Password</h1>
+
+    <p class="subtitle">
+      Create a new password for your account.
+    </p>
+
+    <form id="resetPasswordForm">
+      <label for="newPassword">New Password</label>
+      <input
+        type="password"
+        id="newPassword"
+        placeholder="Enter your new password"
+        autocomplete="new-password"
+        required
+        minlength="6"
+      >
+
+      <label for="confirmPassword">Confirm New Password</label>
+      <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Confirm your new password"
+        autocomplete="new-password"
+        required
+        minlength="6"
+      >
+
+      <button type="submit" id="resetPasswordButton">
+        Update Password
+      </button>
+
+      <p id="resetPasswordMessage" class="message"></p>
+    </form>
+
+    <p class="login-footer">
+      Seoul Bucket List
+    </p>
+  </div>
+</main>
+  
   <!-- DASHBOARD PAGE -->
   <main id="dashboardPage" class="dashboard-page hidden">
     
