@@ -2792,7 +2792,7 @@ dialog.edit-product-dialog::backdrop {
 }
 
 .budget-stat-card strong {
-  font-size: 38px;
+  font-size: clamp(20px, 4.5vw, 32px);
   color: #263650;
   letter-spacing: -1.5px;
 }
