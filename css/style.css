@@ -3362,37 +3362,23 @@ dialog.edit-product-dialog::backdrop {
   }
 }
 
-/* Mobile Store Management Buttons */
-@media (max-width: 700px) {
-  .store-management-actions {
-    gap: 6px;
-  }
-
-  .store-management-actions button {
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    padding: 0;
-    font-size: 17px;
-    border-radius: 11px;
-  }
-}
 /* MOBILE STORE MANAGEMENT BUTTONS */
 @media (max-width: 700px) {
   .store-management-actions {
-    gap: 6px;
+    gap: 5px;
   }
 
-  .store-edit-button,
-  .store-delete-button {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+  .store-management-actions .store-edit-button,
+  .store-management-actions .store-delete-button {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     padding: 0;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
-    border-radius: 10px;
+    border-radius: 9px;
     flex-shrink: 0;
   }
 }
