@@ -11,6 +11,10 @@ const loginButton = document.getElementById("loginButton");
 const loginMessage = document.getElementById("loginMessage");
 const logoutButton = document.getElementById("logoutButton");
 const forgotPasswordButton = document.getElementById("forgotPasswordButton");
+const resetPasswordPage = document.getElementById("resetPasswordPage");
+const resetPasswordForm = document.getElementById("resetPasswordForm");
+const resetPasswordButton = document.getElementById("resetPasswordButton");
+const resetPasswordMessage = document.getElementById("resetPasswordMessage");
 
 let currentUserId = null;
 
@@ -18,6 +22,13 @@ function showLogin() {
   currentUserId = null;
   loginPage.classList.remove("hidden");
   dashboardPage.classList.add("hidden");
+}
+
+
+function showResetPassword() {
+  loginPage.classList.add("hidden");
+  dashboardPage.classList.add("hidden");
+  resetPasswordPage.classList.remove("hidden");
 }
 
 async function showDashboard(user) {
@@ -85,6 +96,45 @@ forgotPasswordButton.addEventListener("click", async () => {
   }
 });
 
+resetPasswordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  resetPasswordMessage.textContent = "";
+
+  if (newPassword !== confirmPassword) {
+    resetPasswordMessage.textContent = "Passwords do not match.";
+    return;
+  }
+
+  resetPasswordButton.disabled = true;
+  resetPasswordButton.textContent = "Updating...";
+
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) throw error;
+
+    resetPasswordMessage.textContent =
+      "Password updated successfully!";
+
+    resetPasswordForm.reset();
+
+    await supabase.auth.signOut();
+    showLogin();
+
+  } catch (error) {
+    resetPasswordMessage.textContent = error.message;
+  } finally {
+    resetPasswordButton.disabled = false;
+    resetPasswordButton.textContent = "Update Password";
+  }
+});
+
 logoutButton.addEventListener("click", async () => {
   const { error } = await supabase.auth.signOut();
 
@@ -95,7 +145,9 @@ logoutButton.addEventListener("click", async () => {
 });
 
 supabase.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
+  if (event === "PASSWORD_RECOVERY") {
+    showResetPassword();
+  } else if (session?.user) {
     if (
       event === "INITIAL_SESSION" ||
       event === "SIGNED_IN" ||
