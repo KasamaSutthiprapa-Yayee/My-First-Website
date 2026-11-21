@@ -10,6 +10,7 @@ const loginForm = document.getElementById("loginForm");
 const loginButton = document.getElementById("loginButton");
 const loginMessage = document.getElementById("loginMessage");
 const logoutButton = document.getElementById("logoutButton");
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
 
 let currentUserId = null;
 
@@ -54,6 +55,33 @@ loginForm.addEventListener("submit", async (event) => {
   } finally {
     loginButton.disabled = false;
     loginButton.textContent = "Sign In";
+  }
+});
+
+forgotPasswordButton.addEventListener("click", async () => {
+  const email = document.getElementById("email").value.trim();
+
+  if (!email) {
+    loginMessage.textContent = "Please enter your email address first.";
+    return;
+  }
+
+  forgotPasswordButton.disabled = true;
+  loginMessage.textContent = "Sending password recovery email...";
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}${window.location.pathname}`
+    });
+
+    if (error) throw error;
+
+    loginMessage.textContent =
+      "Password recovery email sent. Please check your inbox.";
+  } catch (error) {
+    loginMessage.textContent = error.message;
+  } finally {
+    forgotPasswordButton.disabled = false;
   }
 });
 
